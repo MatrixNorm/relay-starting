@@ -1,0 +1,19 @@
+interface Node {
+  id: ID!
+}
+
+type Query {
+  node(id: ID!): Node
+}
+
+type Composer implements Node {
+  id: ID!
+  name: String!
+  pieces: [Piece!]
+}
+
+type Piece implements Node {
+  id: ID!
+  name: String!
+  author: Composer
+}
