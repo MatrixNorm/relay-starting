@@ -12,7 +12,8 @@ const relayEnv = createMockedRelayEnvironment();
 
 const appQuery = graphql`
   query AppQuery {
-    repository(owner: "facebook", name: "relay") {
+    composers {
+      id
       name
     }
   }
@@ -24,6 +25,7 @@ const preloadedQuery = loadQuery(relayEnv, appQuery, {
 
 function App(props) {
   const data = usePreloadedQuery(appQuery, props.preloadedQuery);
+  let x = 1;
   return null;
 }
 

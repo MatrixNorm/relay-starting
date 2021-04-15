@@ -1,9 +1,7 @@
-SRC_DIR=src
-SCHEMA_FILE=src/schema.graphql
+#!/bin/bash
 
-while inotifywait -r -e close_write $SRC_DIR $SCHEMA_FILE; 
-  do npx relay-compiler --src $SRC_DIR \
-                        --schema $SCHEMA_FILE \
-                        --artifactDirectory src/__relay__ \
-                        --language typescript; 
-done;
+yarn run relay-compiler --schema ./src/schema.graphql \
+                        --src ./src \
+                        --artifactDirectory ./src/__relay__ \
+                        --language typescript \
+                        --watch;
