@@ -5,7 +5,7 @@ import { Environment, Network, RecordSource, Store } from "relay-runtime";
 // @ts-ignore
 import schemaDefsText from "raw-loader!./schema.graphql";
 
-function waitFor(timeout: number) {
+function wait(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }
 
@@ -17,7 +17,7 @@ export const createMockedRelayEnvironment = (
   { timeout }: { timeout: number } = { timeout: 200 }
 ) => {
   const network = Network.create(async (operation, variables) => {
-    await waitFor(timeout);
+    await wait(timeout);
     const response = await graphql(mockedSchema, operation.text || "", {}, {}, variables);
     return response;
   });
@@ -25,10 +25,7 @@ export const createMockedRelayEnvironment = (
   const environment = new Environment({ network, store });
 
   // @ts-ignore
-  window.printStore = () => {
-    // @ts-ignore
-    console.log(environment.getStore().getSource()._records);
-  };
+  window.__relayStore = environment.getStore();
 
   return environment;
 };

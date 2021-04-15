@@ -7,11 +7,12 @@ import {
   usePreloadedQuery,
 } from "react-relay/hooks";
 import { createMockedRelayEnvironment } from "./env";
+import { AppRootQueryResponse } from "./__relay__/AppRootQuery.graphql";
 
 const relayEnv = createMockedRelayEnvironment();
 
 const appQuery = graphql`
-  query AppQuery {
+  query AppRootQuery {
     composers {
       id
       name
@@ -19,14 +20,17 @@ const appQuery = graphql`
   }
 `;
 
-const preloadedQuery = loadQuery(relayEnv, appQuery, {
-  /* query variables */
-});
+const preloadedQuery = loadQuery(relayEnv, appQuery, {});
 
 function App(props) {
-  const data = usePreloadedQuery(appQuery, props.preloadedQuery);
-  let x = 1;
-  return null;
+  const data = usePreloadedQuery(appQuery, props.preloadedQuery) as AppRootQueryResponse;
+  return (
+    <div>
+      {data.composers.map((composer) => (
+        <div>{composer.name}</div>
+      ))}
+    </div>
+  );
 }
 
 function Root() {
@@ -39,4 +43,4 @@ function Root() {
   );
 }
 
-ReactDOM.render(<App />, document.getElementById("app"));
+ReactDOM.render(<Root />, document.getElementById("app"));
