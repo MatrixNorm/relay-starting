@@ -7,7 +7,7 @@ import {
   usePreloadedQuery,
 } from "react-relay/hooks";
 import { createMockedRelayEnvironment } from "./env";
-import { AppRootQueryResponse } from "./__relay__/AppRootQuery.graphql";
+import { AppRootQuery } from "./__relay__/AppRootQuery.graphql";
 
 const relayEnv = createMockedRelayEnvironment();
 
@@ -23,7 +23,7 @@ const appQuery = graphql`
 const preloadedQuery = loadQuery(relayEnv, appQuery, {});
 
 function App(props) {
-  const data = usePreloadedQuery(appQuery, props.preloadedQuery) as AppRootQueryResponse;
+  const data = usePreloadedQuery<AppRootQuery>(appQuery, props.preloadedQuery);
   return (
     <div>
       {data.composers.map((composer) => (

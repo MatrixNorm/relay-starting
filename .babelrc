@@ -1,11 +1,12 @@
 {
   "presets": ["@babel/preset-react", "@babel/preset-env", "@babel/typescript"],
   "plugins": [
-    [
-      "relay",
-      {
-        "artifactDirectory": "./src/__relay__"
-      }
-    ]
+    "macros"
+    // [
+    //   "relay",
+    //   {
+    //     "artifactDirectory": "./src/__relay__"
+    //   }
+    // ]
   ]
 }
