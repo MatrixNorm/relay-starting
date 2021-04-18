@@ -5,22 +5,29 @@ import { Environment, Network, RecordSource, Store } from "relay-runtime";
 // @ts-ignore
 import schemaDefsText from "raw-loader!./schema.graphql";
 
-function wait(timeout: number) {
+function sleepAsync(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }
 
 const mockedSchema = addMocksToSchema({
   schema: makeExecutableSchema({ typeDefs: schemaDefsText }),
+  mocks: {
+    Composer: () => ({
+      name: "Sergey Prokofiev",
+    }),
+  },
 });
 
 export const createMockedRelayEnvironment = (
   { timeout }: { timeout: number } = { timeout: 200 }
 ) => {
-  const network = Network.create(async (operation, variables) => {
-    await wait(timeout);
+  const fetchFn = async (operation, variables) => {
+    await sleepAsync(timeout);
     const response = await graphql(mockedSchema, operation.text || "", {}, {}, variables);
     return response;
-  });
+  };
+  // @ts-ignore
+  const network = Network.create(fetchFn);
   const store = new Store(new RecordSource());
   const environment = new Environment({ network, store });
 

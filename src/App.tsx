@@ -27,7 +27,7 @@ function App(props) {
   return (
     <div>
       {data.composers.map((composer) => (
-        <div>{composer.name}</div>
+        <div key={composer.id}>{composer.name}</div>
       ))}
     </div>
   );

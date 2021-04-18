@@ -21,11 +21,13 @@ module.exports = {
     ],
   },
   resolve: {
+    // ???
     extensions: [".js", ".jsx", ".ts", ".tsx"],
   },
   devtool: "source-map",
   devServer: {
     contentBase: ["./src"],
+    // ???
     publicPath: "/",
     watchOptions: {
       ignored: /node_modules/,
@@ -33,7 +35,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: "./index.html",
+      template: "./index.template.html",
     }),
   ],
 };
