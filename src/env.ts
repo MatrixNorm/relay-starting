@@ -12,6 +12,9 @@ function sleepAsync(timeout: number) {
 const mockedSchema = addMocksToSchema({
   schema: makeExecutableSchema({ typeDefs: schemaDefsText }),
   mocks: {
+    Query: () => ({
+      composers: [...new Array(5)],
+    }),
     Composer: () => ({
       name: "Sergey Prokofiev",
     }),
