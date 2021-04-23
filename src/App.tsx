@@ -15,8 +15,7 @@ const relayEnv = createMockedRelayEnvironment();
 const appQuery = graphql`
   query AppRootQuery {
     composers {
-      id
-      name
+      ...ComposerSummary_composer
     }
   }
 `;
@@ -25,13 +24,7 @@ const preloadedQuery = loadQuery<AppRootQuery>(relayEnv, appQuery, {});
 
 function App(props: { preloadedQuery: PreloadedQuery<AppRootQuery> }) {
   const data = usePreloadedQuery(appQuery, props.preloadedQuery);
-  return (
-    <div>
-      {data.composers.map((composer) => (
-        <div key={composer.id}>{composer.name}</div>
-      ))}
-    </div>
-  );
+  <ComposerSummary />;
 }
 
 function Root() {
