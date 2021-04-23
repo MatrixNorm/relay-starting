@@ -7,6 +7,7 @@ import { FragmentRefs } from "relay-runtime";
 export type AppRootQueryVariables = {};
 export type AppRootQueryResponse = {
     readonly composers: ReadonlyArray<{
+        readonly id: string;
         readonly " $fragmentRefs": FragmentRefs<"ComposerSummary_composer">;
     }> | null;
 };
@@ -20,8 +21,8 @@ export type AppRootQuery = {
 /*
 query AppRootQuery {
   composers {
-    ...ComposerSummary_composer
     id
+    ...ComposerSummary_composer
   }
 }
 
@@ -67,6 +68,7 @@ return {
         "name": "composers",
         "plural": true,
         "selections": [
+          (v0/*: any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -128,14 +130,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "d5a183d663e72f19efc270c3e8d67fa7",
+    "cacheID": "45be423370af837bcb4fc9c448180b59",
     "id": null,
     "metadata": {},
     "name": "AppRootQuery",
     "operationKind": "query",
-    "text": "query AppRootQuery {\n  composers {\n    ...ComposerSummary_composer\n    id\n  }\n}\n\nfragment ComposerSummary_composer on Composer {\n  id\n  name\n  works {\n    id\n    name\n    type\n    yearOfPublication\n  }\n}\n"
+    "text": "query AppRootQuery {\n  composers {\n    id\n    ...ComposerSummary_composer\n  }\n}\n\nfragment ComposerSummary_composer on Composer {\n  id\n  name\n  works {\n    id\n    name\n    type\n    yearOfPublication\n  }\n}\n"
   }
 };
 })();
-(node as any).hash = 'e0abf10ef2c5d7742228d5d2f0677753';
+(node as any).hash = '4ab237f8da33a8ac18584f98ef9edb70';
 export default node;

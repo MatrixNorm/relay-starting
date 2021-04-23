@@ -8,30 +8,41 @@ import {
   PreloadedQuery,
 } from "react-relay/hooks";
 import { createMockedRelayEnvironment } from "./env";
-import { AppRootQuery } from "./__relay__/AppRootQuery.graphql";
+import ComposerSummary from "./ComposerSummary";
+import { AppRootQuery } from "__relay__/AppRootQuery.graphql";
 
 const relayEnv = createMockedRelayEnvironment();
 
 const appQuery = graphql`
   query AppRootQuery {
     composers {
+      id
       ...ComposerSummary_composer
     }
   }
 `;
 
-const preloadedQuery = loadQuery<AppRootQuery>(relayEnv, appQuery, {});
+const queryRef = loadQuery<AppRootQuery>(relayEnv, appQuery, {});
 
-function App(props: { preloadedQuery: PreloadedQuery<AppRootQuery> }) {
-  const data = usePreloadedQuery(appQuery, props.preloadedQuery);
-  <ComposerSummary />;
+function App(props: { queryRef: PreloadedQuery<AppRootQuery> }) {
+  const data = usePreloadedQuery(appQuery, props.queryRef);
+  const { composers } = data;
+  return (
+    <div>
+      {composers
+        ? composers.map((composer) => (
+            <ComposerSummary composer={composer} key={composer.id} />
+          ))
+        : "Nothing to show"}
+    </div>
+  );
 }
 
 function Root() {
   return (
     <RelayEnvironmentProvider environment={relayEnv}>
       <React.Suspense fallback={"Loading..."}>
-        <App preloadedQuery={preloadedQuery} />
+        <App queryRef={queryRef} />
       </React.Suspense>
     </RelayEnvironmentProvider>
   );

@@ -16,13 +16,27 @@ const mockedSchema = addMocksToSchema({
       composers: [...new Array(5)],
     }),
     Composer: () => ({
-      name: "Sergey Prokofiev",
+      name: () => {
+        let goats = [
+          "Beethoven",
+          "Mussorgsky",
+          "Prokofiev",
+          "Rachmaninov",
+          "Rimsky-Korsakov",
+          "Scriabin",
+          "Tchaikovsky",
+        ];
+        return goats[Math.floor(Math.random() * goats.length)];
+      },
+    }),
+    Work: () => ({
+      name: `Op. ${Math.floor(Math.random() * 100) + 1}`,
     }),
   },
 });
 
 export const createMockedRelayEnvironment = (
-  { timeout }: { timeout: number } = { timeout: 200 }
+  { timeout }: { timeout: number } = { timeout: 500 }
 ) => {
   const fetchFn = async (operation, variables) => {
     await sleepAsync(timeout);
