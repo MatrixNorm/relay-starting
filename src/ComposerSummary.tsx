@@ -34,13 +34,19 @@ export default function ComposerSummary(props: {
 
 function WorkList({ works }: { works: ComposerSummary_composer["works"] }) {
   return (
-    <ul>
-      {works.map((work) => (
-        <li key={work.id}>
-          <span>{work.name}</span>
-          <span> {work.type}</span>
-        </li>
-      ))}
-    </ul>
+    <>
+      {works ? (
+        <ul>
+          {works.map((work) => (
+            <li key={work.id}>
+              <span>{work.name}</span>
+              <span> {work.type}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <div>This composer is a lazy bummer</div>
+      )}
+    </>
   );
 }
