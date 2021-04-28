@@ -1,16 +1,15 @@
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import { addMocksToSchema } from "@graphql-tools/mock";
-import { graphql } from "graphql";
+import { graphql, printSchema } from "graphql";
 import { Environment, Network, RecordSource, Store } from "relay-runtime";
-// @ts-ignore
-import schemaDefsText from "raw-loader!./schema.graphql";
+import schema from "./schema";
 
 function sleepAsync(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }
 
 const mockedSchema = addMocksToSchema({
-  schema: makeExecutableSchema({ typeDefs: schemaDefsText }),
+  schema: schema,
   mocks: {
     Query: () => ({
       composers: [...new Array(5)],
@@ -28,6 +27,7 @@ const mockedSchema = addMocksToSchema({
         ];
         return goats[Math.floor(Math.random() * goats.length)];
       },
+      works: [...new Array(4)],
     }),
     Work: () => ({
       name: `Op. ${Math.floor(Math.random() * 100) + 1}`,
