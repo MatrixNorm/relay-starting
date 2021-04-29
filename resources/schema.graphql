@@ -1,0 +1,42 @@
+type Query {
+  composers: [Composer!]
+}
+
+type Composer implements Node {
+  id: ID!
+  name: String!
+  country: Country
+  works: [Work!]
+}
+
+interface Node {
+  id: ID!
+}
+
+enum Country {
+  Austria
+  France
+  Italy
+  Germany
+  Poland
+  Russia
+}
+
+type Work implements Node {
+  id: ID!
+  name: String!
+  author: Composer
+  type: CompositionType
+  yearOfPublication: Int
+}
+
+enum CompositionType {
+  BALLET_SUITE
+  OPERA
+  PIANO_CONCERTO
+  PIANO_PRELUDE
+  PIANO_ETUDE
+  PIANO_SONATA
+  STRING_QUARTET
+  SYMTHONY
+}

@@ -10,7 +10,7 @@ import {
   GraphQLString,
 } from "graphql";
 
-function enumType(name: string, values: string[]) {
+function enumType(name, values) {
   return new GraphQLEnumType({
     name: name,
     values: Object.fromEntries(values.map((x, i) => [x, { value: i }])),
@@ -20,7 +20,7 @@ function enumType(name: string, values: string[]) {
 const Query = new GraphQLObjectType({
   name: "Query",
   fields: () => ({
-    composers: { type: new GraphQLList(Composer) },
+    composers: { type: new GraphQLList(new GraphQLNonNull(Composer)) },
   }),
 });
 
@@ -31,7 +31,7 @@ const Node = new GraphQLInterfaceType({
   },
 });
 
-const Composer: any = new GraphQLObjectType({
+const Composer = new GraphQLObjectType({
   name: "Composer",
   interfaces: [Node],
   fields: () => ({

@@ -1,6 +1,5 @@
-import { makeExecutableSchema } from "@graphql-tools/schema";
 import { addMocksToSchema } from "@graphql-tools/mock";
-import { graphql, printSchema } from "graphql";
+import { graphql } from "graphql";
 import { Environment, Network, RecordSource, Store } from "relay-runtime";
 import schema from "./schema";
 
