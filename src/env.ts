@@ -1,4 +1,4 @@
-import { addMocksToSchema } from "@graphql-tools/mock";
+import { addMocksToSchema, createMockStore } from "@graphql-tools/mock";
 import { graphql } from "graphql";
 import { Environment, Network, RecordSource, Store } from "relay-runtime";
 import schema from "./schema";
@@ -7,8 +7,8 @@ function sleepAsync(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }
 
-const mockedSchema = addMocksToSchema({
-  schema: schema,
+const store = createMockStore({
+  schema,
   mocks: {
     Query: () => ({
       composers: [...new Array(5)],
@@ -32,6 +32,18 @@ const mockedSchema = addMocksToSchema({
       name: `Op. ${Math.floor(Math.random() * 100) + 1}`,
     }),
   },
+});
+
+window.mockStore = store;
+
+const mockedSchema = addMocksToSchema({
+  schema,
+  store,
+  resolvers: (store) => ({
+    Query: {
+      composers: (_, { country }) => store.get("User", id),
+    },
+  }),
 });
 
 export const createMockedRelayEnvironment = (

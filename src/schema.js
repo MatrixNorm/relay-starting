@@ -20,7 +20,10 @@ function enumType(name, values) {
 const Query = new GraphQLObjectType({
   name: "Query",
   fields: () => ({
-    composers: { type: new GraphQLList(new GraphQLNonNull(Composer)) },
+    composers: {
+      type: new GraphQLList(new GraphQLNonNull(Composer)),
+      args: { country: { type: Country } },
+    },
   }),
 });
 
