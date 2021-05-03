@@ -14,8 +14,13 @@ import { AppRootQuery } from "__relay__/AppRootQuery.graphql";
 const relayEnv = createMockedRelayEnvironment();
 
 const appQuery = graphql`
-  query AppRootQuery {
-    composers {
+  query AppRootQuery($country: Country) {
+    __type(name: "Country") {
+      enumValues {
+        name
+      }
+    }
+    composers(country: $country) {
       id
       ...ComposerSummary_composer
     }
@@ -26,9 +31,18 @@ const queryRef = loadQuery<AppRootQuery>(relayEnv, appQuery, {});
 
 function App(props: { queryRef: PreloadedQuery<AppRootQuery> }) {
   const data = usePreloadedQuery(appQuery, props.queryRef);
-  const { composers } = data;
+  const { composers, __type } = data;
   return (
     <div>
+      {__type?.enumValues && (
+        <select>
+          {__type.enumValues.map((value, j) => (
+            <option value={value.name} key={j}>
+              {value.name}
+            </option>
+          ))}
+        </select>
+      )}
       {composers
         ? composers.map((composer) => (
             <ComposerSummary composer={composer} key={composer.id} />

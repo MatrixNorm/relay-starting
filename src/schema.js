@@ -8,6 +8,8 @@ import {
   GraphQLObjectType,
   GraphQLSchema,
   GraphQLString,
+  __Schema,
+  __Type,
 } from "graphql";
 
 function enumType(name, values) {
@@ -41,7 +43,10 @@ const Composer = new GraphQLObjectType({
     id: { type: new GraphQLNonNull(GraphQLID) },
     name: { type: new GraphQLNonNull(GraphQLString) },
     country: { type: Country },
-    works: { type: new GraphQLList(new GraphQLNonNull(Work)) },
+    works: {
+      type: new GraphQLList(new GraphQLNonNull(Work)),
+      args: { kind: { type: WorkKind } },
+    },
   }),
 });
 
@@ -52,12 +57,12 @@ const Work = new GraphQLObjectType({
     id: { type: new GraphQLNonNull(GraphQLID) },
     name: { type: new GraphQLNonNull(GraphQLString) },
     author: { type: Composer },
-    type: { type: CompositionType },
+    kind: { type: WorkKind },
     yearOfPublication: { type: GraphQLInt },
   }),
 });
 
-const CompositionType = enumType("CompositionType", [
+const WorkKind = enumType("WorkKind", [
   "BALLET_SUITE",
   "OPERA",
   "PIANO_CONCERTO",
@@ -79,4 +84,21 @@ const Country = enumType("Country", [
 
 export default new GraphQLSchema({
   query: Query,
+});
+
+export const QueryToPleaseRelayCompiler = new GraphQLObjectType({
+  name: "Query",
+  fields: () => ({
+    composers: {
+      type: new GraphQLList(new GraphQLNonNull(Composer)),
+      args: { country: { type: Country } },
+    },
+    __schema: {
+      type: new GraphQLNonNull(__Schema),
+    },
+    __type: {
+      type: __Type,
+      args: { name: { type: new GraphQLNonNull(GraphQLString) } },
+    },
+  }),
 });

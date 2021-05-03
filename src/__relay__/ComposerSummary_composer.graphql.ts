@@ -4,14 +4,14 @@
 
 import { ReaderFragment } from "relay-runtime";
 import { FragmentRefs } from "relay-runtime";
-export type CompositionType = "BALLET_SUITE" | "OPERA" | "PIANO_CONCERTO" | "PIANO_ETUDE" | "PIANO_PRELUDE" | "PIANO_SONATA" | "STRING_QUARTET" | "SYMTHONY" | "%future added value";
+export type WorkKind = "BALLET_SUITE" | "OPERA" | "PIANO_CONCERTO" | "PIANO_ETUDE" | "PIANO_PRELUDE" | "PIANO_SONATA" | "STRING_QUARTET" | "SYMTHONY" | "%future added value";
 export type ComposerSummary_composer = {
     readonly id: string;
     readonly name: string;
     readonly works: ReadonlyArray<{
         readonly id: string;
         readonly name: string;
-        readonly type: CompositionType | null;
+        readonly kind: WorkKind | null;
         readonly yearOfPublication: number | null;
     }> | null;
     readonly " $refType": "ComposerSummary_composer";
@@ -61,7 +61,7 @@ return {
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "type",
+          "name": "kind",
           "storageKey": null
         },
         {
@@ -79,5 +79,5 @@ return {
   "abstractKey": null
 };
 })();
-(node as any).hash = 'a56d4e4274b1565db40b45e5f930f95a';
+(node as any).hash = 'ed3f365f473d853d14d213af1b204d23';
 export default node;

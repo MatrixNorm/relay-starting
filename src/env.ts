@@ -6,7 +6,7 @@ import schema from "./schema";
 function sleepAsync(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }
-
+console.log(schema);
 const store = createMockStore({
   schema,
   mocks: {
@@ -39,11 +39,11 @@ window.mockStore = store;
 const mockedSchema = addMocksToSchema({
   schema,
   store,
-  resolvers: (store) => ({
-    Query: {
-      composers: (_, { country }) => store.get("User", id),
-    },
-  }),
+  // resolvers: (store) => ({
+  //   Query: {
+  //     composers: (_, { country }) => store.get("User", id),
+  //   },
+  // }),
 });
 
 export const createMockedRelayEnvironment = (

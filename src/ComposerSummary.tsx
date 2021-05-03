@@ -14,7 +14,7 @@ const fragmentRef = graphql`
     works {
       id
       name
-      type
+      kind
       yearOfPublication
     }
   }
