@@ -19,16 +19,6 @@ function enumType(name, values) {
   });
 }
 
-const Query = new GraphQLObjectType({
-  name: "Query",
-  fields: () => ({
-    composers: {
-      type: new GraphQLList(new GraphQLNonNull(Composer)),
-      args: { country: { type: Country } },
-    },
-  }),
-});
-
 const Node = new GraphQLInterfaceType({
   name: "Node",
   fields: {
@@ -82,17 +72,22 @@ const Country = enumType("Country", [
   "Russia",
 ]);
 
-export default new GraphQLSchema({
-  query: Query,
+const queryFields = {
+  composers: {
+    type: new GraphQLList(new GraphQLNonNull(Composer)),
+    args: { country: { type: Country } },
+  },
+};
+
+const Query = new GraphQLObjectType({
+  name: "Query",
+  fields: queryFields,
 });
 
 export const QueryToPleaseRelayCompiler = new GraphQLObjectType({
   name: "Query",
-  fields: () => ({
-    composers: {
-      type: new GraphQLList(new GraphQLNonNull(Composer)),
-      args: { country: { type: Country } },
-    },
+  fields: {
+    ...queryFields,
     __schema: {
       type: new GraphQLNonNull(__Schema),
     },
@@ -100,5 +95,9 @@ export const QueryToPleaseRelayCompiler = new GraphQLObjectType({
       type: __Type,
       args: { name: { type: new GraphQLNonNull(GraphQLString) } },
     },
-  }),
+  },
+});
+
+export default new GraphQLSchema({
+  query: Query,
 });
