@@ -6,7 +6,7 @@ import schema from "./schema";
 function sleepAsync(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }
-console.log(schema);
+
 const store = createMockStore({
   schema,
   mocks: {

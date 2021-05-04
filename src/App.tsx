@@ -5,11 +5,49 @@ import {
   RelayEnvironmentProvider,
   loadQuery,
   usePreloadedQuery,
+  useQueryLoader,
   PreloadedQuery,
 } from "react-relay/hooks";
 import { createMockedRelayEnvironment } from "./env";
 import ComposerSummary from "./ComposerSummary";
 import { AppRootQuery } from "__relay__/AppRootQuery.graphql";
+
+function ComposerList(props: {
+  queryRef: PreloadedQuery<AppRootQuery>;
+  reloadQuery: any;
+}) {
+  const data = usePreloadedQuery(appQuery, props.queryRef);
+  const { composers, __type } = data;
+  return (
+    <div>
+      {__type?.enumValues && (
+        <select
+          defaultValue={props.queryRef.variables.country || undefined}
+          onChange={(evt) => {
+            props.reloadQuery({ country: evt.target.value || undefined });
+          }}
+        >
+          <option value={undefined}></option>
+          {__type.enumValues.map((value, j) => (
+            <option value={value.name} key={j}>
+              {value.name}
+            </option>
+          ))}
+        </select>
+      )}
+      {composers
+        ? composers.map((composer) => (
+            <ComposerSummary composer={composer} key={composer.id} />
+          ))
+        : "Nothing to show"}
+    </div>
+  );
+}
+
+function App(props: { initialQueryRef: PreloadedQuery<AppRootQuery> }) {
+  const [queryRef, reloadQuery] = useQueryLoader(appQuery, props.initialQueryRef);
+  return queryRef ? <ComposerList queryRef={queryRef} reloadQuery={reloadQuery} /> : null;
+}
 
 const relayEnv = createMockedRelayEnvironment();
 
@@ -27,36 +65,15 @@ const appQuery = graphql`
   }
 `;
 
-const queryRef = loadQuery<AppRootQuery>(relayEnv, appQuery, {});
-
-function App(props: { queryRef: PreloadedQuery<AppRootQuery> }) {
-  const data = usePreloadedQuery(appQuery, props.queryRef);
-  const { composers, __type } = data;
-  return (
-    <div>
-      {__type?.enumValues && (
-        <select>
-          {__type.enumValues.map((value, j) => (
-            <option value={value.name} key={j}>
-              {value.name}
-            </option>
-          ))}
-        </select>
-      )}
-      {composers
-        ? composers.map((composer) => (
-            <ComposerSummary composer={composer} key={composer.id} />
-          ))
-        : "Nothing to show"}
-    </div>
-  );
-}
+const initialQueryRef = loadQuery<AppRootQuery>(relayEnv, appQuery, {
+  country: "Russia",
+});
 
 function Root() {
   return (
     <RelayEnvironmentProvider environment={relayEnv}>
       <React.Suspense fallback={"Loading..."}>
-        <App queryRef={queryRef} />
+        <App initialQueryRef={initialQueryRef} />
       </React.Suspense>
     </RelayEnvironmentProvider>
   );
