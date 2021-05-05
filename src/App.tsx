@@ -80,3 +80,10 @@ function Root() {
 }
 
 ReactDOM.render(<Root />, document.getElementById("app"));
+
+/**
+ * Problems:
+ * 1. Select element is reloaded every time new option is chosen.
+ *    Right thing is to load options on first render and subsequently
+ *    reload only list of composers.
+ */
