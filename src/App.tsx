@@ -13,6 +13,8 @@ import ComposerSummary from "./ComposerSummary";
 import { AppComposersQuery } from "__relay__/AppComposersQuery.graphql";
 import { AppCountriesQuery } from "__relay__/AppCountriesQuery.graphql";
 
+type CountriesEnum = AppComposersQuery["variables"]["country"];
+
 const relayEnv = createMockedRelayEnvironment();
 
 const ComposersQuery = graphql`
@@ -66,7 +68,9 @@ function CountrySelector(props: {
         <select
           defaultValue={props.initialComposersQueryRef.variables.country || undefined}
           onChange={(evt) => {
-            reloadComposersQuery({ country: evt.target.value || undefined });
+            reloadComposersQuery({
+              country: (evt.target.value || undefined) as CountriesEnum,
+            });
           }}
         >
           <option value={undefined}></option>
@@ -79,9 +83,11 @@ function CountrySelector(props: {
       )}
 
       {composersQueryRef ? (
-        <React.Suspense fallback={"Loading..."}>
-          <ComposersList queryRef={composersQueryRef} />
-        </React.Suspense>
+        <div>
+          <React.Suspense fallback={"Loading..."}>
+            <ComposersList queryRef={composersQueryRef} />
+          </React.Suspense>
+        </div>
       ) : null}
     </div>
   );
