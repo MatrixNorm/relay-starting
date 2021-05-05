@@ -10,21 +10,63 @@ import {
 } from "react-relay/hooks";
 import { createMockedRelayEnvironment } from "./env";
 import ComposerSummary from "./ComposerSummary";
-import { AppRootQuery } from "__relay__/AppRootQuery.graphql";
+import { AppComposersQuery } from "__relay__/AppComposersQuery.graphql";
+import { AppCountriesQuery } from "__relay__/AppCountriesQuery.graphql";
 
-function ComposerList(props: {
-  queryRef: PreloadedQuery<AppRootQuery>;
-  reloadQuery: any;
+const relayEnv = createMockedRelayEnvironment();
+
+const ComposersQuery = graphql`
+  query AppComposersQuery($country: Country) {
+    composers(country: $country) {
+      id
+      ...ComposerSummary_composer
+    }
+  }
+`;
+
+const CountriesQuery = graphql`
+  query AppCountriesQuery {
+    __type(name: "Country") {
+      enumValues {
+        name
+      }
+    }
+  }
+`;
+
+function ComposersList(props: { queryRef: PreloadedQuery<AppComposersQuery> }) {
+  const data = usePreloadedQuery(ComposersQuery, props.queryRef);
+  const { composers } = data;
+  return (
+    <div>
+      {composers
+        ? composers.map((composer) => (
+            <ComposerSummary composer={composer} key={composer.id} />
+          ))
+        : "Nothing to show"}
+    </div>
+  );
+}
+
+function CountrySelector(props: {
+  countriesQueryRef: PreloadedQuery<AppCountriesQuery>;
+  initialComposersQueryRef: PreloadedQuery<AppComposersQuery>;
 }) {
-  const data = usePreloadedQuery(appQuery, props.queryRef);
-  const { composers, __type } = data;
+  const [composersQueryRef, reloadComposersQuery] = useQueryLoader(
+    ComposersQuery,
+    props.initialComposersQueryRef
+  );
+  const data = usePreloadedQuery(CountriesQuery, props.countriesQueryRef);
+
+  const { __type } = data;
+
   return (
     <div>
       {__type?.enumValues && (
         <select
-          defaultValue={props.queryRef.variables.country || undefined}
+          defaultValue={props.initialComposersQueryRef.variables.country || undefined}
           onChange={(evt) => {
-            props.reloadQuery({ country: evt.target.value || undefined });
+            reloadComposersQuery({ country: evt.target.value || undefined });
           }}
         >
           <option value={undefined}></option>
@@ -35,37 +77,18 @@ function ComposerList(props: {
           ))}
         </select>
       )}
-      {composers
-        ? composers.map((composer) => (
-            <ComposerSummary composer={composer} key={composer.id} />
-          ))
-        : "Nothing to show"}
+
+      {composersQueryRef ? (
+        <React.Suspense fallback={"Loading..."}>
+          <ComposersList queryRef={composersQueryRef} />
+        </React.Suspense>
+      ) : null}
     </div>
   );
 }
 
-function App(props: { initialQueryRef: PreloadedQuery<AppRootQuery> }) {
-  const [queryRef, reloadQuery] = useQueryLoader(appQuery, props.initialQueryRef);
-  return queryRef ? <ComposerList queryRef={queryRef} reloadQuery={reloadQuery} /> : null;
-}
-
-const relayEnv = createMockedRelayEnvironment();
-
-const appQuery = graphql`
-  query AppRootQuery($country: Country) {
-    __type(name: "Country") {
-      enumValues {
-        name
-      }
-    }
-    composers(country: $country) {
-      id
-      ...ComposerSummary_composer
-    }
-  }
-`;
-
-const initialQueryRef = loadQuery<AppRootQuery>(relayEnv, appQuery, {
+const countriesQueryRef = loadQuery<AppCountriesQuery>(relayEnv, CountriesQuery, {});
+const initialComposersQueryRef = loadQuery<AppComposersQuery>(relayEnv, ComposersQuery, {
   country: "Russia",
 });
 
@@ -73,17 +96,13 @@ function Root() {
   return (
     <RelayEnvironmentProvider environment={relayEnv}>
       <React.Suspense fallback={"Loading..."}>
-        <App initialQueryRef={initialQueryRef} />
+        <CountrySelector
+          countriesQueryRef={countriesQueryRef}
+          initialComposersQueryRef={initialComposersQueryRef}
+        />
       </React.Suspense>
     </RelayEnvironmentProvider>
   );
 }
 
 ReactDOM.render(<Root />, document.getElementById("app"));
-
-/**
- * Problems:
- * 1. Select element is reloaded every time new option is chosen.
- *    Right thing is to load options on first render and subsequently
- *    reload only list of composers.
- */

@@ -5,36 +5,26 @@
 import { ConcreteRequest } from "relay-runtime";
 import { FragmentRefs } from "relay-runtime";
 export type Country = "Austria" | "France" | "Germany" | "Italy" | "Poland" | "Russia" | "%future added value";
-export type AppRootQueryVariables = {
+export type AppComposersQueryVariables = {
     country?: Country | null;
 };
-export type AppRootQueryResponse = {
-    readonly __type: {
-        readonly enumValues: ReadonlyArray<{
-            readonly name: string;
-        }> | null;
-    } | null;
+export type AppComposersQueryResponse = {
     readonly composers: ReadonlyArray<{
         readonly id: string;
         readonly " $fragmentRefs": FragmentRefs<"ComposerSummary_composer">;
     }> | null;
 };
-export type AppRootQuery = {
-    readonly response: AppRootQueryResponse;
-    readonly variables: AppRootQueryVariables;
+export type AppComposersQuery = {
+    readonly response: AppComposersQueryResponse;
+    readonly variables: AppComposersQueryVariables;
 };
 
 
 
 /*
-query AppRootQuery(
+query AppComposersQuery(
   $country: Country
 ) {
-  __type(name: "Country") {
-    enumValues {
-      name
-    }
-  }
   composers(country: $country) {
     id
     ...ComposerSummary_composer
@@ -61,54 +51,25 @@ var v0 = [
     "name": "country"
   }
 ],
-v1 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "name",
-  "storageKey": null
-},
-v2 = {
-  "alias": null,
-  "args": [
-    {
-      "kind": "Literal",
-      "name": "name",
-      "value": "Country"
-    }
-  ],
-  "concreteType": "__Type",
-  "kind": "LinkedField",
-  "name": "__type",
-  "plural": false,
-  "selections": [
-    {
-      "alias": null,
-      "args": null,
-      "concreteType": "__EnumValue",
-      "kind": "LinkedField",
-      "name": "enumValues",
-      "plural": true,
-      "selections": [
-        (v1/*: any*/)
-      ],
-      "storageKey": null
-    }
-  ],
-  "storageKey": "__type(name:\"Country\")"
-},
-v3 = [
+v1 = [
   {
     "kind": "Variable",
     "name": "country",
     "variableName": "country"
   }
 ],
-v4 = {
+v2 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
+  "storageKey": null
+},
+v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
   "storageKey": null
 };
 return {
@@ -116,18 +77,17 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "AppRootQuery",
+    "name": "AppComposersQuery",
     "selections": [
-      (v2/*: any*/),
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v1/*: any*/),
         "concreteType": "Composer",
         "kind": "LinkedField",
         "name": "composers",
         "plural": true,
         "selections": [
-          (v4/*: any*/),
+          (v2/*: any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
@@ -144,19 +104,18 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "AppRootQuery",
+    "name": "AppComposersQuery",
     "selections": [
-      (v2/*: any*/),
       {
         "alias": null,
-        "args": (v3/*: any*/),
+        "args": (v1/*: any*/),
         "concreteType": "Composer",
         "kind": "LinkedField",
         "name": "composers",
         "plural": true,
         "selections": [
-          (v4/*: any*/),
-          (v1/*: any*/),
+          (v2/*: any*/),
+          (v3/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -165,8 +124,8 @@ return {
             "name": "works",
             "plural": true,
             "selections": [
-              (v4/*: any*/),
-              (v1/*: any*/),
+              (v2/*: any*/),
+              (v3/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -190,14 +149,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "3defd46cc03eadd0a5afefb68c0ad9f3",
+    "cacheID": "b0ee91a64b1b119430c5ceef3640ef34",
     "id": null,
     "metadata": {},
-    "name": "AppRootQuery",
+    "name": "AppComposersQuery",
     "operationKind": "query",
-    "text": "query AppRootQuery(\n  $country: Country\n) {\n  __type(name: \"Country\") {\n    enumValues {\n      name\n    }\n  }\n  composers(country: $country) {\n    id\n    ...ComposerSummary_composer\n  }\n}\n\nfragment ComposerSummary_composer on Composer {\n  id\n  name\n  works {\n    id\n    name\n    kind\n    yearOfPublication\n  }\n}\n"
+    "text": "query AppComposersQuery(\n  $country: Country\n) {\n  composers(country: $country) {\n    id\n    ...ComposerSummary_composer\n  }\n}\n\nfragment ComposerSummary_composer on Composer {\n  id\n  name\n  works {\n    id\n    name\n    kind\n    yearOfPublication\n  }\n}\n"
   }
 };
 })();
-(node as any).hash = '24e7d48f000bbca169a59e4ad5324237';
+(node as any).hash = 'b4ec92633623fe31e766b7024678e391';
 export default node;
