@@ -40,7 +40,13 @@ v1 = {
   "storageKey": null
 };
 return {
-  "argumentDefinitions": [],
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "workKind"
+    }
+  ],
   "kind": "Fragment",
   "metadata": null,
   "name": "ComposerSummary_composer",
@@ -49,7 +55,13 @@ return {
     (v1/*: any*/),
     {
       "alias": null,
-      "args": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "kind",
+          "variableName": "workKind"
+        }
+      ],
       "concreteType": "Work",
       "kind": "LinkedField",
       "name": "works",
@@ -79,5 +91,5 @@ return {
   "abstractKey": null
 };
 })();
-(node as any).hash = 'ed3f365f473d853d14d213af1b204d23';
+(node as any).hash = '272f15eeb98bdde81623a0771998424b';
 export default node;

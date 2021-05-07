@@ -8,10 +8,11 @@ import {
 } from "__relay__/ComposerSummary_composer.graphql";
 
 const fragmentRef = graphql`
-  fragment ComposerSummary_composer on Composer {
+  fragment ComposerSummary_composer on Composer
+  @argumentDefinitions(workKind: { type: "WorkKind" }) {
     id
     name
-    works {
+    works(kind: $workKind) {
       id
       name
       kind

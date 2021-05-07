@@ -5,8 +5,10 @@
 import { ConcreteRequest } from "relay-runtime";
 import { FragmentRefs } from "relay-runtime";
 export type Country = "Austria" | "France" | "Germany" | "Italy" | "Poland" | "Russia" | "%future added value";
+export type WorkKind = "BALLET_SUITE" | "OPERA" | "PIANO_CONCERTO" | "PIANO_ETUDE" | "PIANO_PRELUDE" | "PIANO_SONATA" | "STRING_QUARTET" | "SYMTHONY" | "%future added value";
 export type AppComposersQueryVariables = {
     country?: Country | null;
+    workKind?: WorkKind | null;
 };
 export type AppComposersQueryResponse = {
     readonly composers: ReadonlyArray<{
@@ -24,17 +26,18 @@ export type AppComposersQuery = {
 /*
 query AppComposersQuery(
   $country: Country
+  $workKind: WorkKind
 ) {
   composers(country: $country) {
     id
-    ...ComposerSummary_composer
+    ...ComposerSummary_composer_15hxLD
   }
 }
 
-fragment ComposerSummary_composer on Composer {
+fragment ComposerSummary_composer_15hxLD on Composer {
   id
   name
-  works {
+  works(kind: $workKind) {
     id
     name
     kind
@@ -49,6 +52,11 @@ var v0 = [
     "defaultValue": null,
     "kind": "LocalArgument",
     "name": "country"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "workKind"
   }
 ],
 v1 = [
@@ -89,7 +97,13 @@ return {
         "selections": [
           (v2/*: any*/),
           {
-            "args": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "workKind",
+                "variableName": "workKind"
+              }
+            ],
             "kind": "FragmentSpread",
             "name": "ComposerSummary_composer"
           }
@@ -118,7 +132,13 @@ return {
           (v3/*: any*/),
           {
             "alias": null,
-            "args": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "kind",
+                "variableName": "workKind"
+              }
+            ],
             "concreteType": "Work",
             "kind": "LinkedField",
             "name": "works",
@@ -149,14 +169,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "b0ee91a64b1b119430c5ceef3640ef34",
+    "cacheID": "2a33f8befa8d7ee91f000ce46dc455cc",
     "id": null,
     "metadata": {},
     "name": "AppComposersQuery",
     "operationKind": "query",
-    "text": "query AppComposersQuery(\n  $country: Country\n) {\n  composers(country: $country) {\n    id\n    ...ComposerSummary_composer\n  }\n}\n\nfragment ComposerSummary_composer on Composer {\n  id\n  name\n  works {\n    id\n    name\n    kind\n    yearOfPublication\n  }\n}\n"
+    "text": "query AppComposersQuery(\n  $country: Country\n  $workKind: WorkKind\n) {\n  composers(country: $country) {\n    id\n    ...ComposerSummary_composer_15hxLD\n  }\n}\n\nfragment ComposerSummary_composer_15hxLD on Composer {\n  id\n  name\n  works(kind: $workKind) {\n    id\n    name\n    kind\n    yearOfPublication\n  }\n}\n"
   }
 };
 })();
-(node as any).hash = 'b4ec92633623fe31e766b7024678e391';
+(node as any).hash = 'df2c981ff56b5dd4893ef8b8b8340309';
 export default node;
