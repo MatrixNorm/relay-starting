@@ -1,9 +1,9 @@
 import { addMocksToSchema, createMockStore } from "@graphql-tools/mock";
 import { graphql } from "graphql";
-import { Environment, Network, RecordSource, Store } from "relay-runtime";
+import * as rr from "relay-runtime";
 import schema from "./schema";
 
-function sleepAsync(timeout: number) {
+function sleepPromise(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }
 
@@ -34,8 +34,6 @@ const store = createMockStore({
   },
 });
 
-window.mockStore = store;
-
 const mockedSchema = addMocksToSchema({
   schema,
   store,
@@ -49,16 +47,25 @@ const mockedSchema = addMocksToSchema({
 export const createMockedRelayEnvironment = (
   { timeout }: { timeout: number } = { timeout: 500 }
 ) => {
-  const fetchFn = async (operation, variables) => {
-    console.log(operation.text, variables);
-    await sleepAsync(timeout);
-    const response = await graphql(mockedSchema, operation.text || "", {}, {}, variables);
-    return response;
-  };
-  // @ts-ignore
-  const network = Network.create(fetchFn);
-  const store = new Store(new RecordSource());
-  const environment = new Environment({ network, store });
+  let latestPendingResponse: Promise<any> = Promise.resolve();
+  // XXX
+  async function getNextResponse(request: rr.RequestParameters, variables: rr.Variables) {
+    await latestPendingResponse;
+    await sleepPromise(timeout);
+    return await graphql(mockedSchema, request.text || "", {}, {}, variables);
+  }
+
+  const network = rr.Network.create(
+    // @ts-ignore
+    async (request: rr.RequestParameters, variables: rr.Variables) => {
+      console.log(request.text, variables);
+      const nextResponse = getNextResponse(request, variables);
+      latestPendingResponse = nextResponse;
+      return nextResponse;
+    }
+  );
+  const store = new rr.Store(new rr.RecordSource());
+  const environment = new rr.Environment({ network, store });
 
   // @ts-ignore
   window.__relayStore = environment.getStore();
