@@ -17,7 +17,6 @@ describe("xxx", () => {
   test("t1", () => {
     let env = createMockEnvironment();
     env.mock.queueOperationResolver((op: OperationDescriptor) => {
-      console.log(1111, op);
       return {
         data: {
           countries: { enumValues: [{ name: "A" }, { name: "B" }] },
@@ -25,26 +24,26 @@ describe("xxx", () => {
         },
       };
     });
-    env.mock.queuePendingOperation(SelectorsQuery, {});
-
     env.mock.queueOperationResolver((op: OperationDescriptor) => {
-      console.log(2222, op);
-      return {};
+      return {
+        data: {
+          composers: [
+            {
+              id: "Composer#1",
+              name: "Scriabin",
+              works: [
+                { id: "Work#1", name: "X", kind: "a", yearOfPublication: 1902 },
+                { id: "Work#2", name: "Y", kind: "b", yearOfPublication: 1909 },
+              ],
+            },
+          ],
+        },
+      };
     });
+    env.mock.queuePendingOperation(SelectorsQuery, {});
     env.mock.queuePendingOperation(ComposersQuery, {});
+    console.log("---------");
     let renderer = tr.create(<Root env={env} />);
     console.log(JSON.stringify(renderer.toJSON(), null, 2));
-    // env.mock.resolveMostRecentOperation({
-    //   data: {
-    //     composers: [
-    //       {
-    //         id: "1",
-    //         name: "Scriabin",
-    //         works: { id: "1", name: "X", kind: "a", yearOfPublication: 1902 },
-    //       },
-    //     ],
-    //   },
-    // });
-    // console.log(env.mock.getAllOperations().forEach(getOperationText));
   });
 });

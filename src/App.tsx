@@ -125,7 +125,10 @@ function App(props: {
 
 export function Root({ env }: { env: IEnvironment }) {
   const selectorsQueryRef = loadQuery<AppSelectorsQuery>(env, SelectorsQuery, {});
-  const initialComposersQueryRef = loadQuery<AppComposersQuery>(env, ComposersQuery, {});
+  const initialComposersQueryRef = loadQuery<AppComposersQuery>(env, ComposersQuery, {
+    country: null,
+    workKind: null,
+  });
   return (
     <RelayEnvironmentProvider environment={env}>
       <React.Suspense fallback={"Loading..."}>
