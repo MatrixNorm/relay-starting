@@ -6,6 +6,8 @@ import * as tr from "react-test-renderer";
 import { ComposersQuery, Root, SelectorsQuery } from "../App";
 import { createManuallyControlledRelayEnvironment } from "../env";
 
+const eventLoopNextTick = () => new Promise((resolve) => setTimeout(resolve, 0));
+
 function getOperationText(operation: OperationDescriptor) {
   return operation.request.node.params.text;
 }
@@ -48,18 +50,13 @@ describe("xxx", () => {
     console.log(JSON.stringify(renderer.toJSON(), null, 2));
   });
 
-  test("t2", (done) => {
+  test("t2", async () => {
     const [env, getPendingRequests] = createManuallyControlledRelayEnvironment();
     const renderer = tr.create(<Root env={env} />);
     console.log(JSON.stringify(renderer.toJSON(), null, 2));
-    const pendingRequest = getPendingRequests();
-    console.log(pendingRequest);
-    pendingRequest[0].resolver();
-    console.log(pendingRequest);
-
-    setTimeout(() => {
-      console.log(JSON.stringify(renderer.toJSON(), null, 2));
-      done();
-    }, 0);
+    const pendingRequests = getPendingRequests();
+    pendingRequests[0].resolver();
+    await eventLoopNextTick();
+    console.log(JSON.stringify(renderer.toJSON(), null, 2));
   });
 });
