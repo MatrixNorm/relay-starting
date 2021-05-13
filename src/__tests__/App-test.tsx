@@ -1,9 +1,10 @@
 import * as React from "react";
+import { OperationDescriptor } from "react-relay";
 //@ts-ignore
-import { createMockEnvironment, MockPayloadGenerator } from "relay-test-utils";
+import { createMockEnvironment } from "relay-test-utils";
 import * as tr from "react-test-renderer";
 import { ComposersQuery, Root, SelectorsQuery } from "../App";
-import { OperationDescriptor } from "react-relay";
+import { createManuallyControlledRelayEnvironment } from "../env";
 
 function getOperationText(operation: OperationDescriptor) {
   return operation.request.node.params.text;
@@ -15,7 +16,7 @@ function getOperationName(operation: OperationDescriptor) {
 
 describe("xxx", () => {
   test("t1", () => {
-    let env = createMockEnvironment();
+    const env = createMockEnvironment();
     env.mock.queueOperationResolver((op: OperationDescriptor) => {
       return {
         data: {
@@ -43,7 +44,22 @@ describe("xxx", () => {
     env.mock.queuePendingOperation(SelectorsQuery, {});
     env.mock.queuePendingOperation(ComposersQuery, {});
     console.log("---------");
-    let renderer = tr.create(<Root env={env} />);
+    const renderer = tr.create(<Root env={env} />);
     console.log(JSON.stringify(renderer.toJSON(), null, 2));
+  });
+
+  test("t2", (done) => {
+    const [env, getPendingRequests] = createManuallyControlledRelayEnvironment();
+    const renderer = tr.create(<Root env={env} />);
+    console.log(JSON.stringify(renderer.toJSON(), null, 2));
+    const pendingRequest = getPendingRequests();
+    console.log(pendingRequest);
+    pendingRequest[0].resolver();
+    console.log(pendingRequest);
+
+    setTimeout(() => {
+      console.log(JSON.stringify(renderer.toJSON(), null, 2));
+      done();
+    }, 0);
   });
 });

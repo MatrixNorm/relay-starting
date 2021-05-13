@@ -66,6 +66,7 @@ function App(props: {
     ComposersQuery,
     props.initialComposersQueryRef
   );
+  debugger;
   const data = usePreloadedQuery(SelectorsQuery, props.selectorsQueryRef);
 
   const { countries, workKinds } = data;
