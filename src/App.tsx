@@ -9,24 +9,15 @@ import {
   PreloadedQuery,
 } from "react-relay/hooks";
 import ComposerSummary from "./ComposerSummary";
+import { AppInitialQuery } from "__relay__/AppInitialQuery.graphql";
 import { AppComposersQuery } from "__relay__/AppComposersQuery.graphql";
-import { AppSelectorsQuery } from "__relay__/AppSelectorsQuery.graphql";
 import { IEnvironment } from "relay-runtime";
 
-type CountriesEnum = AppComposersQuery["variables"]["country"];
-type WorkKindEnum = AppComposersQuery["variables"]["workKind"];
+type CountriesEnum = AppInitialQuery["variables"]["country"];
+type WorkKindEnum = AppInitialQuery["variables"]["workKind"];
 
-export const ComposersQuery = graphql`
-  query AppComposersQuery($country: Country, $workKind: WorkKind) {
-    composers(country: $country) {
-      id
-      ...ComposerSummary_composer @arguments(workKind: $workKind)
-    }
-  }
-`;
-
-export const SelectorsQuery = graphql`
-  query AppSelectorsQuery {
+export const InitialQuery = graphql`
+  query AppInitialQuery($country: Country, $workKind: WorkKind) {
     countries: __type(name: "Country") {
       enumValues {
         name
@@ -37,12 +28,32 @@ export const SelectorsQuery = graphql`
         name
       }
     }
+    composers(country: $country) {
+      id
+      ...ComposerSummary_composer @arguments(workKind: $workKind)
+    }
   }
 `;
 
-function ComposersList(props: { queryRef: PreloadedQuery<AppComposersQuery> }) {
+const ComposersQuery = graphql`
+  query AppComposersQuery($country: Country, $workKind: WorkKind) {
+    composers(country: $country) {
+      id
+      ...ComposerSummary_composer @arguments(workKind: $workKind)
+    }
+  }
+`;
+
+function ComposersListWrapper(props: { queryRef: PreloadedQuery<AppComposersQuery> }) {
   const data = usePreloadedQuery(ComposersQuery, props.queryRef);
-  const { composers } = data;
+  return <ComposersList composers={data.composers} />;
+}
+
+function ComposersList({
+  composers,
+}: {
+  composers: AppComposersQuery["response"]["composers"];
+}) {
   return (
     <div>
       {composers
@@ -54,22 +65,16 @@ function ComposersList(props: { queryRef: PreloadedQuery<AppComposersQuery> }) {
   );
 }
 
-function App(props: {
-  selectorsQueryRef: PreloadedQuery<AppSelectorsQuery>;
-  initialComposersQueryRef: PreloadedQuery<AppComposersQuery>;
-}) {
+function App(props: { initialQueryRef: PreloadedQuery<AppInitialQuery> }) {
   const [state, setState] = useState({
-    country: props.initialComposersQueryRef.variables.country,
-    workKind: props.initialComposersQueryRef.variables.workKind,
+    country: props.initialQueryRef.variables.country,
+    workKind: props.initialQueryRef.variables.workKind,
   });
-  const [composersQueryRef, reloadComposersQuery] = useQueryLoader(
-    ComposersQuery,
-    props.initialComposersQueryRef
-  );
-  debugger;
-  const data = usePreloadedQuery(SelectorsQuery, props.selectorsQueryRef);
-
-  const { countries, workKinds } = data;
+  const data = usePreloadedQuery(InitialQuery, props.initialQueryRef);
+  const [composersQueryRef, reloadComposersQuery] =
+    useQueryLoader<AppComposersQuery>(ComposersQuery);
+  console.log(composersQueryRef);
+  const { countries, workKinds, composers } = data;
 
   return (
     <div>
@@ -114,29 +119,25 @@ function App(props: {
       )}
 
       {composersQueryRef ? (
-        <div>
-          <React.Suspense fallback={"Loading..."}>
-            <ComposersList queryRef={composersQueryRef} />
-          </React.Suspense>
-        </div>
-      ) : null}
+        <React.Suspense fallback={"Loading..."}>
+          <ComposersListWrapper queryRef={composersQueryRef} />
+        </React.Suspense>
+      ) : (
+        <ComposersList composers={composers} />
+      )}
     </div>
   );
 }
 
 export function Root({ env }: { env: IEnvironment }) {
-  const selectorsQueryRef = loadQuery<AppSelectorsQuery>(env, SelectorsQuery, {});
-  const initialComposersQueryRef = loadQuery<AppComposersQuery>(env, ComposersQuery, {
+  const initialQueryRef = loadQuery<AppInitialQuery>(env, InitialQuery, {
     country: null,
     workKind: null,
   });
   return (
     <RelayEnvironmentProvider environment={env}>
       <React.Suspense fallback={"Loading..."}>
-        <App
-          selectorsQueryRef={selectorsQueryRef}
-          initialComposersQueryRef={initialComposersQueryRef}
-        />
+        <App initialQueryRef={initialQueryRef} />
       </React.Suspense>
     </RelayEnvironmentProvider>
   );
