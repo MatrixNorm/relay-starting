@@ -73,7 +73,7 @@ function App(props: { initialQueryRef: PreloadedQuery<AppInitialQuery> }) {
   const data = usePreloadedQuery(InitialQuery, props.initialQueryRef);
   const [composersQueryRef, reloadComposersQuery] =
     useQueryLoader<AppComposersQuery>(ComposersQuery);
-  console.log(composersQueryRef);
+
   const { countries, workKinds, composers } = data;
 
   return (
