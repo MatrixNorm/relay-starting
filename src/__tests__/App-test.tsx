@@ -55,7 +55,10 @@ describe("xxx", () => {
     const renderer = tr.create(<Root env={env} />);
     console.log(JSON.stringify(renderer.toJSON(), null, 2));
     const pendingRequests = getPendingRequests();
-    pendingRequests[0].resolver();
+    pendingRequests[0].resolver({
+      countries: { enumValues: [{ name: "Russia" }, { name: "Austria" }] },
+      workKinds: { enumValues: [{ name: "Piano sonata" }, { name: "Symphony" }] },
+    });
     await eventLoopNextTick();
     console.log(JSON.stringify(renderer.toJSON(), null, 2));
   });

@@ -92,15 +92,8 @@ export const createManuallyControlledRelayEnvironment: () => [
       let resolver = null;
 
       const responsePromise = new Promise((resolve) => {
-        const response = gql.graphqlSync(
-          mockedSchema,
-          request.text || "",
-          {},
-          {},
-          variables
-        );
-        resolver = () => {
-          resolve(response);
+        resolver = (data: any) => {
+          resolve({ data });
           const j = pendingRequests.findIndex((pending) => pending.request === request);
           pendingRequests.splice(j, 1);
         };
