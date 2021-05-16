@@ -18,12 +18,12 @@ type WorkKindEnum = AppInitialQuery["variables"]["workKind"];
 
 export const InitialQuery = graphql`
   query AppInitialQuery($country: Country, $workKind: WorkKind) {
-    countries: __type(name: "Country") {
+    countryValues: __type(name: "Country") {
       enumValues {
         name
       }
     }
-    workKinds: __type(name: "WorkKind") {
+    workKindValues: __type(name: "WorkKind") {
       enumValues {
         name
       }
@@ -66,51 +66,96 @@ function ComposersList({
 }
 
 function App(props: { initialQueryRef: PreloadedQuery<AppInitialQuery> }) {
-  const [state, setState] = useState({
-    country: props.initialQueryRef.variables.country,
-    workKind: props.initialQueryRef.variables.workKind,
+  const [state, setState] = useState<{
+    current: AppComposersQuery["variables"];
+    draft: AppComposersQuery["variables"];
+  }>({
+    current: {
+      country: props.initialQueryRef.variables.country,
+      workKind: props.initialQueryRef.variables.workKind,
+    },
+    draft: {},
   });
   const data = usePreloadedQuery(InitialQuery, props.initialQueryRef);
   const [composersQueryRef, reloadComposersQuery] =
     useQueryLoader<AppComposersQuery>(ComposersQuery);
 
-  const { countries, workKinds, composers } = data;
+  const { countryValues, workKindValues, composers } = data;
 
+  function handleApply() {
+    const nextState = {
+      current: { ...state.current, ...state.draft },
+      draft: {},
+    };
+    setState(nextState);
+    reloadComposersQuery(nextState.current);
+  }
+  function handleCancel() {
+    setState((prev) => {
+      prev.draft = {};
+      return prev;
+    });
+  }
+
+  const onChange =
+    (param: keyof AppComposersQuery["variables"]) =>
+    (evt: React.ChangeEvent<HTMLSelectElement>) => {
+      let nextValue = evt.target.value || undefined;
+      if (nextValue !== state.current[param]) {
+        setState((prev) => {
+          let next = { ...prev };
+          //@ts-ignore
+          next.draft[param] = nextValue;
+          return next;
+        });
+      } else {
+        setState((prev) => {
+          let next = { ...prev };
+          delete next.draft[param];
+          return next;
+        });
+      }
+    };
+
+  const makeSelect = (param: keyof AppComposersQuery["variables"]) => (
+    <select
+      value={state.current[param] || undefined}
+      onChange={onChange(param)}
+      test-id={`App-${param}-selector`}
+    >
+      <option value={undefined}></option>
+      {countries.enumValues.map((value, j) => (
+        <option value={value.name} key={j}>
+          {value.name}
+        </option>
+      ))}
+    </select>
+  );
+  console.log(state);
   return (
     <div>
-      {countries?.enumValues && (
+      {countryValues?.enumValues && (
         <select
-          value={state.country || undefined}
-          onChange={(evt) => {
-            let nextCountry = (evt.target.value || undefined) as CountriesEnum;
-            let nextState = { ...state, country: nextCountry };
-            setState(nextState);
-            reloadComposersQuery(nextState);
-          }}
+          value={state.current.country || undefined}
+          onChange={onChange("country")}
           test-id="App-country-selector"
         >
           <option value={undefined}></option>
-          {countries.enumValues.map((value, j) => (
+          {countryValues.enumValues.map((value, j) => (
             <option value={value.name} key={j}>
               {value.name}
             </option>
           ))}
         </select>
       )}
-
-      {workKinds?.enumValues && (
+      {workKindValues?.enumValues && (
         <select
-          value={state.workKind || undefined}
-          onChange={(evt) => {
-            let nextWorkKind = (evt.target.value || undefined) as WorkKindEnum;
-            let nextState = { ...state, workKind: nextWorkKind };
-            setState(nextState);
-            reloadComposersQuery(nextState);
-          }}
+          value={state.current.workKind || undefined}
+          onChange={onChange("workKind")}
           test-id="App-workKind-selector"
         >
           <option value={undefined}></option>
-          {workKinds.enumValues.map((value, j) => (
+          {workKindValues.enumValues.map((value, j) => (
             <option value={value.name} key={j}>
               {value.name}
             </option>
@@ -118,6 +163,12 @@ function App(props: { initialQueryRef: PreloadedQuery<AppInitialQuery> }) {
         </select>
       )}
 
+      {Object.keys(state.draft).length > 0 && (
+        <div>
+          <button onClick={handleApply}>apply</button>
+          <button onClick={handleCancel}>cancel</button>
+        </div>
+      )}
       {composersQueryRef ? (
         <React.Suspense fallback={"Loading..."}>
           <ComposersListWrapper queryRef={composersQueryRef} />

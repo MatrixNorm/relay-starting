@@ -11,12 +11,12 @@ export type AppInitialQueryVariables = {
     workKind?: WorkKind | null;
 };
 export type AppInitialQueryResponse = {
-    readonly countries: {
+    readonly countryValues: {
         readonly enumValues: ReadonlyArray<{
             readonly name: string;
         }> | null;
     } | null;
-    readonly workKinds: {
+    readonly workKindValues: {
         readonly enumValues: ReadonlyArray<{
             readonly name: string;
         }> | null;
@@ -38,12 +38,12 @@ query AppInitialQuery(
   $country: Country
   $workKind: WorkKind
 ) {
-  countries: __type(name: "Country") {
+  countryValues: __type(name: "Country") {
     enumValues {
       name
     }
   }
-  workKinds: __type(name: "WorkKind") {
+  workKindValues: __type(name: "WorkKind") {
     enumValues {
       name
     }
@@ -101,7 +101,7 @@ v2 = [
   }
 ],
 v3 = {
-  "alias": "countries",
+  "alias": "countryValues",
   "args": [
     {
       "kind": "Literal",
@@ -117,7 +117,7 @@ v3 = {
   "storageKey": "__type(name:\"Country\")"
 },
 v4 = {
-  "alias": "workKinds",
+  "alias": "workKindValues",
   "args": [
     {
       "kind": "Literal",
@@ -239,14 +239,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "a38456877af13a5b37e26f3467e1f553",
+    "cacheID": "9c3d73fad2145b5adaeb188a634c1abc",
     "id": null,
     "metadata": {},
     "name": "AppInitialQuery",
     "operationKind": "query",
-    "text": "query AppInitialQuery(\n  $country: Country\n  $workKind: WorkKind\n) {\n  countries: __type(name: \"Country\") {\n    enumValues {\n      name\n    }\n  }\n  workKinds: __type(name: \"WorkKind\") {\n    enumValues {\n      name\n    }\n  }\n  composers(country: $country) {\n    id\n    ...ComposerSummary_composer_15hxLD\n  }\n}\n\nfragment ComposerSummary_composer_15hxLD on Composer {\n  id\n  name\n  works(kind: $workKind) {\n    id\n    name\n    kind\n    yearOfPublication\n  }\n}\n"
+    "text": "query AppInitialQuery(\n  $country: Country\n  $workKind: WorkKind\n) {\n  countryValues: __type(name: \"Country\") {\n    enumValues {\n      name\n    }\n  }\n  workKindValues: __type(name: \"WorkKind\") {\n    enumValues {\n      name\n    }\n  }\n  composers(country: $country) {\n    id\n    ...ComposerSummary_composer_15hxLD\n  }\n}\n\nfragment ComposerSummary_composer_15hxLD on Composer {\n  id\n  name\n  works(kind: $workKind) {\n    id\n    name\n    kind\n    yearOfPublication\n  }\n}\n"
   }
 };
 })();
-(node as any).hash = '9fc9aa309e3e978bafd3fc552faa537d';
+(node as any).hash = '667822411ef0c6f9f4c56c4f1876b25b';
 export default node;
