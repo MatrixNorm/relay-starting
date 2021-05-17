@@ -167,7 +167,7 @@ function App(props: { initialQueryRef: PreloadedQuery<AppInitialQuery> }) {
           onChange={onChange(param)}
           test-id={`App-${param}-selector`}
         >
-          <option value={undefined}></option>
+          <option value="">---</option>
           {(data as any)[`${param}Values`].enumValues.map((value: any, j: number) => (
             <option value={value.name} key={j}>
               {value.name}
