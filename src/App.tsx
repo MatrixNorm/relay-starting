@@ -108,9 +108,11 @@ function App(props: { initialQueryRef: PreloadedQuery<AppInitialQuery> }) {
   const onChange =
     (param: keyof AppComposersQuery["variables"]) =>
     (evt: React.ChangeEvent<HTMLSelectElement>) => {
+      // This is de-facto decoding from external display representation
+      // to internal one. Specifically empty string is decoded into undefined.
       const nextValue = evt.target.value || undefined;
-      console.log({ nextValue });
       const currentValue = state.current[param];
+
       if (isNully(nextValue)) {
         if (isNully(currentValue)) {
           setState((prev) => {
@@ -143,6 +145,8 @@ function App(props: { initialQueryRef: PreloadedQuery<AppInitialQuery> }) {
     };
 
   function calcSelectValue(param: keyof AppComposersQuery["variables"]) {
+    // This is de-facto encoding from internal representation to external display
+    // one. Specifically undefined value is encoded as empty string.
     let draft = state.draftDelta[param];
 
     if (draft === null) {
@@ -160,7 +164,6 @@ function App(props: { initialQueryRef: PreloadedQuery<AppInitialQuery> }) {
 
   const makeSelect = (param: keyof AppComposersQuery["variables"]) => {
     if ((data as any)[`${param}Values`]?.enumValues) {
-      console.log(param, calcSelectValue(param));
       return (
         <select
           value={calcSelectValue(param)}
@@ -178,7 +181,7 @@ function App(props: { initialQueryRef: PreloadedQuery<AppInitialQuery> }) {
     }
     return null;
   };
-  console.log(state);
+
   return (
     <div>
       {makeSelect("country")}
