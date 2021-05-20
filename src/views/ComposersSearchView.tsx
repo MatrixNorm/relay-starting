@@ -3,15 +3,15 @@ import { useState } from "react";
 import graphql from "babel-plugin-relay/macro";
 import {
   loadQuery,
-  RelayEnvironmentProvider,
   usePreloadedQuery,
+  useRelayEnvironment,
   useQueryLoader,
   PreloadedQuery,
 } from "react-relay/hooks";
-import ComposerSummary from "./ComposerSummary";
+import ComposerSummary from "../components/ComposerSummary";
+
 import { AppInitialQuery } from "__relay__/AppInitialQuery.graphql";
 import { AppComposersQuery } from "__relay__/AppComposersQuery.graphql";
-import { IEnvironment } from "relay-runtime";
 
 function isNully(value: any) {
   return value === null || value === undefined;
@@ -23,7 +23,7 @@ function removeUndefinedValues(ob: Object) {
 }
 
 export const InitialQuery = graphql`
-  query AppInitialQuery($country: Country, $workKind: WorkKind) {
+  query ComposersSearchViewInitialQuery($country: Country, $workKind: WorkKind) {
     countryValues: __type(name: "Country") {
       enumValues {
         name
@@ -42,7 +42,7 @@ export const InitialQuery = graphql`
 `;
 
 const ComposersQuery = graphql`
-  query AppComposersQuery($country: Country, $workKind: WorkKind) {
+  query ComposersSearchViewComposersQuery($country: Country, $workKind: WorkKind) {
     composers(country: $country) {
       id
       ...ComposerSummary_composer @arguments(workKind: $workKind)
@@ -71,7 +71,9 @@ function ComposersList({
   );
 }
 
-function App(props: { initialQueryRef: PreloadedQuery<AppInitialQuery> }) {
+function ComposersSearchView__(props: {
+  initialQueryRef: PreloadedQuery<AppInitialQuery>;
+}) {
   const [state, setState] = useState<{
     // null or undefined means value is not set
     current: AppComposersQuery["variables"];
@@ -205,16 +207,15 @@ function App(props: { initialQueryRef: PreloadedQuery<AppInitialQuery> }) {
   );
 }
 
-export function Root({ env }: { env: IEnvironment }) {
+export function ComposersSearchView() {
+  const env = useRelayEnvironment();
   const initialQueryRef = loadQuery<AppInitialQuery>(env, InitialQuery, {
     country: null,
     workKind: null,
   });
   return (
-    <RelayEnvironmentProvider environment={env}>
-      <React.Suspense fallback={"Loading..."}>
-        <App initialQueryRef={initialQueryRef} />
-      </React.Suspense>
-    </RelayEnvironmentProvider>
+    <React.Suspense fallback={"Loading..."}>
+      <ComposersSearchView__ initialQueryRef={initialQueryRef} />
+    </React.Suspense>
   );
 }

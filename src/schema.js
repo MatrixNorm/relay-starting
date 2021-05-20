@@ -77,6 +77,10 @@ const queryFields = {
     type: new GraphQLList(new GraphQLNonNull(Composer)),
     args: { country: { type: Country } },
   },
+  composerById: {
+    type: Composer,
+    args: { composerId: { type: new GraphQLNonNull(GraphQLID) } },
+  },
 };
 
 const Query = new GraphQLObjectType({
