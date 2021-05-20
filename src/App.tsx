@@ -2,7 +2,6 @@ import * as React from "react";
 import { useState } from "react";
 import graphql from "babel-plugin-relay/macro";
 import {
-  loadQuery,
   RelayEnvironmentProvider,
   usePreloadedQuery,
   useQueryLoader,
@@ -205,11 +204,13 @@ function App(props: { initialQueryRef: PreloadedQuery<AppInitialQuery> }) {
   );
 }
 
-export function Root({ env }: { env: IEnvironment }) {
-  const initialQueryRef = loadQuery<AppInitialQuery>(env, InitialQuery, {
-    country: null,
-    workKind: null,
-  });
+export function Root({
+  env,
+  initialQueryRef,
+}: {
+  env: IEnvironment;
+  initialQueryRef: PreloadedQuery<AppInitialQuery>;
+}) {
   return (
     <RelayEnvironmentProvider environment={env}>
       <React.Suspense fallback={"Loading..."}>
