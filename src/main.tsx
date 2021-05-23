@@ -1,30 +1,23 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import { RelayEnvironmentProvider } from "react-relay/hooks";
-import { ComposersSearchView } from "./views/ComposersSearchView";
 import { createMockedRelayEnvironment } from "./env";
+import { createRouter } from "./routing/createRouter";
+import RouterRenderer from "./routing/RouteRenderer";
+import RoutingContext from "./routing/RoutingContext";
+import getRoutes from "./routes";
 
 import { IEnvironment } from "relay-runtime";
 
 const relayEnv = createMockedRelayEnvironment({ timeout: 1000 });
+const router = createRouter(getRoutes(relayEnv));
 
 function App({ env }: { env: IEnvironment }) {
   return (
     <RelayEnvironmentProvider environment={env}>
-      <Router>
-        <nav>
-          <Link to="/">Home</Link>
-        </nav>
-        <Switch>
-          <Route path="/composer/:composerId">
-            <ComposerDetailedView />
-          </Route>
-          <Route path="/">
-            <ComposersSearchView />
-          </Route>
-        </Switch>
-      </Router>
+      <RoutingContext.Provider value={router.context}>
+        <RouterRenderer />
+      </RoutingContext.Provider>
     </RelayEnvironmentProvider>
   );
 }
