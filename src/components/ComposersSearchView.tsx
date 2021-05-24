@@ -1,17 +1,12 @@
 import * as React from "react";
 import { useState } from "react";
 import graphql from "babel-plugin-relay/macro";
-import {
-  loadQuery,
-  usePreloadedQuery,
-  useRelayEnvironment,
-  useQueryLoader,
-  PreloadedQuery,
-} from "react-relay/hooks";
+import { usePreloadedQuery, useQueryLoader } from "react-relay/hooks";
 import ComposerSummary from "../components/ComposerSummary";
-
-import { AppInitialQuery } from "__relay__/AppInitialQuery.graphql";
-import { AppComposersQuery } from "__relay__/AppComposersQuery.graphql";
+// types
+import { PreloadedQuery } from "react-relay/hooks";
+import { ComposersSearchViewInitialQuery as $InitialQuery } from "__relay__/ComposersSearchViewInitialQuery.graphql";
+import { ComposersSearchViewComposersQuery as $ComposersQuery } from "__relay__/ComposersSearchViewComposersQuery.graphql";
 
 function isNully(value: any) {
   return value === null || value === undefined;
@@ -50,36 +45,17 @@ const ComposersQuery = graphql`
   }
 `;
 
-function ComposersListWrapper(props: { queryRef: PreloadedQuery<AppComposersQuery> }) {
-  const data = usePreloadedQuery(ComposersQuery, props.queryRef);
-  return <ComposersList composers={data.composers} />;
-}
+type $Vars = $ComposersQuery["variables"];
 
-function ComposersList({
-  composers,
-}: {
-  composers: AppComposersQuery["response"]["composers"];
-}) {
-  return (
-    <div>
-      {composers
-        ? composers.map((composer) => (
-            <ComposerSummary composer={composer} key={composer.id} />
-          ))
-        : "Nothing to show"}
-    </div>
-  );
-}
-
-function ComposersSearchView__(props: {
-  initialQueryRef: PreloadedQuery<AppInitialQuery>;
+export function ComposersSearchView(props: {
+  initialQueryRef: PreloadedQuery<$InitialQuery>;
 }) {
   const [state, setState] = useState<{
     // null or undefined means value is not set
-    current: AppComposersQuery["variables"];
+    current: $Vars;
     // undefined means value is not set
     // null means value is unset
-    draftDelta: AppComposersQuery["variables"];
+    draftDelta: $Vars;
   }>({
     current: {
       country: props.initialQueryRef.variables.country,
@@ -87,9 +63,11 @@ function ComposersSearchView__(props: {
     },
     draftDelta: {},
   });
+
   const data = usePreloadedQuery(InitialQuery, props.initialQueryRef);
+
   const [composersQueryRef, reloadComposersQuery] =
-    useQueryLoader<AppComposersQuery>(ComposersQuery);
+    useQueryLoader<$ComposersQuery>(ComposersQuery);
 
   function handleApply() {
     const nextState = {
@@ -99,6 +77,7 @@ function ComposersSearchView__(props: {
     setState(nextState);
     reloadComposersQuery(nextState.current);
   }
+
   function handleCancel() {
     setState((prev) => {
       const next = { ...prev };
@@ -108,8 +87,7 @@ function ComposersSearchView__(props: {
   }
 
   const onChange =
-    (param: keyof AppComposersQuery["variables"]) =>
-    (evt: React.ChangeEvent<HTMLSelectElement>) => {
+    (param: keyof $Vars) => (evt: React.ChangeEvent<HTMLSelectElement>) => {
       // This is de-facto decoding from external display representation
       // to internal one. Specifically empty string is decoded into undefined.
       const nextValue = evt.target.value || undefined;
@@ -146,7 +124,7 @@ function ComposersSearchView__(props: {
       }
     };
 
-  function calcSelectValue(param: keyof AppComposersQuery["variables"]) {
+  function calcSelectValue(param: keyof $Vars) {
     // This is de-facto encoding from internal representation to external display
     // one. Specifically undefined value is encoded as empty string.
     let draft = state.draftDelta[param];
@@ -164,7 +142,7 @@ function ComposersSearchView__(props: {
     return Object.keys(state.draftDelta).filter((x) => x !== undefined).length > 0;
   }
 
-  const makeSelect = (param: keyof AppComposersQuery["variables"]) => {
+  const makeSelect = (param: keyof $Vars) => {
     if ((data as any)[`${param}Values`]?.enumValues) {
       return (
         <select
@@ -185,37 +163,47 @@ function ComposersSearchView__(props: {
   };
 
   return (
-    <div>
-      {makeSelect("country")}
-      {makeSelect("workKind")}
+    <React.Suspense fallback={"Loading..."}>
+      <div>
+        {makeSelect("country")}
+        {makeSelect("workKind")}
 
-      {shouldShowButtons() && (
-        <div>
-          <button onClick={handleApply}>apply</button>
-          <button onClick={handleCancel}>cancel</button>
-        </div>
-      )}
+        {shouldShowButtons() && (
+          <div>
+            <button onClick={handleApply}>apply</button>
+            <button onClick={handleCancel}>cancel</button>
+          </div>
+        )}
 
-      {composersQueryRef ? (
-        <React.Suspense fallback={"Loading..."}>
-          <ComposersListWrapper queryRef={composersQueryRef} />
-        </React.Suspense>
-      ) : (
-        <ComposersList composers={data.composers} />
-      )}
-    </div>
+        {composersQueryRef ? (
+          <React.Suspense fallback={"Loading..."}>
+            <ComposersListWrapper queryRef={composersQueryRef} />
+          </React.Suspense>
+        ) : (
+          <ComposersList composers={data.composers} />
+        )}
+      </div>
+    </React.Suspense>
   );
 }
 
-export function ComposersSearchView() {
-  const env = useRelayEnvironment();
-  const initialQueryRef = loadQuery<AppInitialQuery>(env, InitialQuery, {
-    country: null,
-    workKind: null,
-  });
+function ComposersListWrapper(props: { queryRef: PreloadedQuery<$ComposersQuery> }) {
+  const data = usePreloadedQuery(ComposersQuery, props.queryRef);
+  return <ComposersList composers={data.composers} />;
+}
+
+function ComposersList({
+  composers,
+}: {
+  composers: $ComposersQuery["response"]["composers"];
+}) {
   return (
-    <React.Suspense fallback={"Loading..."}>
-      <ComposersSearchView__ initialQueryRef={initialQueryRef} />
-    </React.Suspense>
+    <div>
+      {composers
+        ? composers.map((composer) => (
+            <ComposerSummary composer={composer} key={composer.id} />
+          ))
+        : "Nothing to show"}
+    </div>
   );
 }

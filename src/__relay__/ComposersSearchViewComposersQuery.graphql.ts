@@ -6,48 +6,28 @@ import { ConcreteRequest } from "relay-runtime";
 import { FragmentRefs } from "relay-runtime";
 export type Country = "Austria" | "France" | "Germany" | "Italy" | "Poland" | "Russia" | "%future added value";
 export type WorkKind = "BALLET_SUITE" | "OPERA" | "PIANO_CONCERTO" | "PIANO_ETUDE" | "PIANO_PRELUDE" | "PIANO_SONATA" | "STRING_QUARTET" | "SYMTHONY" | "%future added value";
-export type AppInitialQueryVariables = {
+export type ComposersSearchViewComposersQueryVariables = {
     country?: Country | null;
     workKind?: WorkKind | null;
 };
-export type AppInitialQueryResponse = {
-    readonly countryValues: {
-        readonly enumValues: ReadonlyArray<{
-            readonly name: string;
-        }> | null;
-    } | null;
-    readonly workKindValues: {
-        readonly enumValues: ReadonlyArray<{
-            readonly name: string;
-        }> | null;
-    } | null;
+export type ComposersSearchViewComposersQueryResponse = {
     readonly composers: ReadonlyArray<{
         readonly id: string;
         readonly " $fragmentRefs": FragmentRefs<"ComposerSummary_composer">;
     }> | null;
 };
-export type AppInitialQuery = {
-    readonly response: AppInitialQueryResponse;
-    readonly variables: AppInitialQueryVariables;
+export type ComposersSearchViewComposersQuery = {
+    readonly response: ComposersSearchViewComposersQueryResponse;
+    readonly variables: ComposersSearchViewComposersQueryVariables;
 };
 
 
 
 /*
-query AppInitialQuery(
+query ComposersSearchViewComposersQuery(
   $country: Country
   $workKind: WorkKind
 ) {
-  countryValues: __type(name: "Country") {
-    enumValues {
-      name
-    }
-  }
-  workKindValues: __type(name: "WorkKind") {
-    enumValues {
-      name
-    }
-  }
   composers(country: $country) {
     id
     ...ComposerSummary_composer_15hxLD
@@ -79,71 +59,25 @@ var v0 = [
     "name": "workKind"
   }
 ],
-v1 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "name",
-  "storageKey": null
-},
-v2 = [
-  {
-    "alias": null,
-    "args": null,
-    "concreteType": "__EnumValue",
-    "kind": "LinkedField",
-    "name": "enumValues",
-    "plural": true,
-    "selections": [
-      (v1/*: any*/)
-    ],
-    "storageKey": null
-  }
-],
-v3 = {
-  "alias": "countryValues",
-  "args": [
-    {
-      "kind": "Literal",
-      "name": "name",
-      "value": "Country"
-    }
-  ],
-  "concreteType": "__Type",
-  "kind": "LinkedField",
-  "name": "__type",
-  "plural": false,
-  "selections": (v2/*: any*/),
-  "storageKey": "__type(name:\"Country\")"
-},
-v4 = {
-  "alias": "workKindValues",
-  "args": [
-    {
-      "kind": "Literal",
-      "name": "name",
-      "value": "WorkKind"
-    }
-  ],
-  "concreteType": "__Type",
-  "kind": "LinkedField",
-  "name": "__type",
-  "plural": false,
-  "selections": (v2/*: any*/),
-  "storageKey": "__type(name:\"WorkKind\")"
-},
-v5 = [
+v1 = [
   {
     "kind": "Variable",
     "name": "country",
     "variableName": "country"
   }
 ],
-v6 = {
+v2 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
+  "storageKey": null
+},
+v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
   "storageKey": null
 };
 return {
@@ -151,19 +85,17 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "AppInitialQuery",
+    "name": "ComposersSearchViewComposersQuery",
     "selections": [
-      (v3/*: any*/),
-      (v4/*: any*/),
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v1/*: any*/),
         "concreteType": "Composer",
         "kind": "LinkedField",
         "name": "composers",
         "plural": true,
         "selections": [
-          (v6/*: any*/),
+          (v2/*: any*/),
           {
             "args": [
               {
@@ -186,20 +118,18 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "AppInitialQuery",
+    "name": "ComposersSearchViewComposersQuery",
     "selections": [
-      (v3/*: any*/),
-      (v4/*: any*/),
       {
         "alias": null,
-        "args": (v5/*: any*/),
+        "args": (v1/*: any*/),
         "concreteType": "Composer",
         "kind": "LinkedField",
         "name": "composers",
         "plural": true,
         "selections": [
-          (v6/*: any*/),
-          (v1/*: any*/),
+          (v2/*: any*/),
+          (v3/*: any*/),
           {
             "alias": null,
             "args": [
@@ -214,8 +144,8 @@ return {
             "name": "works",
             "plural": true,
             "selections": [
-              (v6/*: any*/),
-              (v1/*: any*/),
+              (v2/*: any*/),
+              (v3/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -239,14 +169,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "9c3d73fad2145b5adaeb188a634c1abc",
+    "cacheID": "e55dcf51019548230d7eede2921b82b4",
     "id": null,
     "metadata": {},
-    "name": "AppInitialQuery",
+    "name": "ComposersSearchViewComposersQuery",
     "operationKind": "query",
-    "text": "query AppInitialQuery(\n  $country: Country\n  $workKind: WorkKind\n) {\n  countryValues: __type(name: \"Country\") {\n    enumValues {\n      name\n    }\n  }\n  workKindValues: __type(name: \"WorkKind\") {\n    enumValues {\n      name\n    }\n  }\n  composers(country: $country) {\n    id\n    ...ComposerSummary_composer_15hxLD\n  }\n}\n\nfragment ComposerSummary_composer_15hxLD on Composer {\n  id\n  name\n  works(kind: $workKind) {\n    id\n    name\n    kind\n    yearOfPublication\n  }\n}\n"
+    "text": "query ComposersSearchViewComposersQuery(\n  $country: Country\n  $workKind: WorkKind\n) {\n  composers(country: $country) {\n    id\n    ...ComposerSummary_composer_15hxLD\n  }\n}\n\nfragment ComposerSummary_composer_15hxLD on Composer {\n  id\n  name\n  works(kind: $workKind) {\n    id\n    name\n    kind\n    yearOfPublication\n  }\n}\n"
   }
 };
 })();
-(node as any).hash = '667822411ef0c6f9f4c56c4f1876b25b';
+(node as any).hash = '553b7952bca551368bf2498f875dbdda';
 export default node;
