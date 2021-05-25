@@ -32,10 +32,10 @@ const getRoutes = (relayEnv: IEnvironment) => [
       {
         path: "/composer/:id",
         component: ComposerDetailedView,
-        prepare: (params) => {
+        prepare: (params: { id: any }) => {
           return {
             queryRef: loadQuery(relayEnv, ComposerDetailedViewQuery, {
-              id: params.id,
+              composerId: params.id,
             }),
           };
         },

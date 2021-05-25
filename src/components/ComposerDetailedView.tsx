@@ -1,7 +1,6 @@
 import * as React from "react";
 import { usePreloadedQuery } from "react-relay/hooks";
 import graphql from "babel-plugin-relay/macro";
-import { Page404 } from "./Page404";
 //types
 import { PreloadedQuery } from "react-relay";
 import { ComposerDetailedViewQuery } from "__relay__/ComposerDetailedViewQuery.graphql";
@@ -28,9 +27,9 @@ export const Query = graphql`
 `;
 
 export function ComposerDetailedView(props: {
-  queryRef: PreloadedQuery<ComposerDetailedViewQuery>;
+  prepared: { queryRef: PreloadedQuery<ComposerDetailedViewQuery> };
 }) {
-  const data = usePreloadedQuery(Query, props.queryRef);
+  const data = usePreloadedQuery(Query, props.prepared.queryRef);
   return (
     <React.Suspense fallback={"Loading..."}>
       <div>{data.composerById?.name}</div>

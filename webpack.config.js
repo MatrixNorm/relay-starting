@@ -8,6 +8,8 @@ module.exports = {
   output: {
     filename: "entry.js",
     path: path.resolve(__dirname, "dist"),
+    // https://stackoverflow.com/questions/31945763/how-to-tell-webpack-dev-server-to-serve-index-html-for-any-route
+    publicPath: "/",
   },
   module: {
     rules: [
@@ -26,9 +28,8 @@ module.exports = {
   },
   devtool: "source-map",
   devServer: {
+    historyApiFallback: true,
     contentBase: ["./src"],
-    // ???
-    publicPath: "/",
     watchOptions: {
       ignored: /node_modules/,
     },

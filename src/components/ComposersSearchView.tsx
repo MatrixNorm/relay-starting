@@ -48,7 +48,7 @@ const ComposersQuery = graphql`
 type $Vars = $ComposersQuery["variables"];
 
 export function ComposersSearchView(props: {
-  initialQueryRef: PreloadedQuery<$InitialQuery>;
+  prepared: { initialQueryRef: PreloadedQuery<$InitialQuery> };
 }) {
   const [state, setState] = useState<{
     // null or undefined means value is not set
@@ -58,13 +58,13 @@ export function ComposersSearchView(props: {
     draftDelta: $Vars;
   }>({
     current: {
-      country: props.initialQueryRef.variables.country,
-      workKind: props.initialQueryRef.variables.workKind,
+      country: props.prepared.initialQueryRef.variables.country,
+      workKind: props.prepared.initialQueryRef.variables.workKind,
     },
     draftDelta: {},
   });
 
-  const data = usePreloadedQuery(InitialQuery, props.initialQueryRef);
+  const data = usePreloadedQuery(InitialQuery, props.prepared.initialQueryRef);
 
   const [composersQueryRef, reloadComposersQuery] =
     useQueryLoader<$ComposersQuery>(ComposersQuery);

@@ -2,10 +2,13 @@ import { createBrowserHistory } from "history";
 import * as rrc from "react-router-config";
 import * as h from "history";
 
-export type Router = {
-  history: h.BrowserHistory<h.State>;
+type $History = h.BrowserHistory<h.State>;
+type $Location = h.Location<h.State>;
+
+export type $Router = {
+  history: $History;
   get: () => {
-    location: h.Location<h.State>;
+    location: $Location;
     entries: any;
   };
   preload: (pathname: string) => void;
@@ -21,7 +24,7 @@ export type Router = {
 export function createRouter(
   routes: any,
   options?: any
-): { cleanup: () => void; context: Router } {
+): { cleanup: () => void; context: $Router } {
   // Initialize history
   const history = createBrowserHistory(options);
 
@@ -42,12 +45,13 @@ export function createRouter(
   // Listen for location changes, match to the route entry, prepare the entry,
   // and notify subscribers. Note that this pattern ensures that data-loading
   // occurs *outside* of - and *before* - rendering.
-  const cleanup = history.listen((location: any) => {
+  const cleanup = history.listen(({ location }) => {
     if (location.pathname === currentEntry.location.pathname) {
       return;
     }
     const matches = matchRoute(routes, location);
     const entries = prepareMatches(matches);
+    console.log(entries);
     const nextEntry = {
       location,
       entries,
@@ -89,6 +93,7 @@ export function createRouter(
  */
 function matchRoute(routes: any, location: any) {
   const matchedRoutes = rrc.matchRoutes(routes, location.pathname);
+  console.log({ location, matchedRoutes });
   if (!Array.isArray(matchedRoutes) || matchedRoutes.length === 0) {
     throw new Error("No route for " + location.pathname);
   }
