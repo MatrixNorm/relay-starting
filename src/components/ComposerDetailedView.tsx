@@ -5,10 +5,7 @@ import graphql from "babel-plugin-relay/macro";
 import { PreloadedQuery } from "react-relay";
 import { ComposerDetailedViewQuery } from "__relay__/ComposerDetailedViewQuery.graphql";
 
-// See comment below
-type UrlParams = {
-  id?: string;
-};
+type Composer = NonNullable<ComposerDetailedViewQuery["response"]["composerById"]>;
 
 export const Query = graphql`
   query ComposerDetailedViewQuery($composerId: ID!) {
@@ -32,7 +29,29 @@ export function ComposerDetailedView(props: {
   const data = usePreloadedQuery(Query, props.prepared.queryRef);
   return (
     <React.Suspense fallback={"Loading..."}>
-      <div>{data.composerById?.name}</div>
+      {data.composerById ? (
+        <Details composer={data.composerById} />
+      ) : (
+        <div>Not found</div>
+      )}
     </React.Suspense>
   );
+}
+
+function Details({ composer }: { composer: Composer }) {
+  return <div>
+    <h3>{composer.name}</h3>
+    {composer.works ? (
+      <ul>
+        {composer.works.map((work) => (
+          <li key={work.id}>
+            <span>{work.name}</span>
+            <span> {work.kind}</span>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <div>This composer is a lazy bummer</div>
+    )}
+  </div>;
 }

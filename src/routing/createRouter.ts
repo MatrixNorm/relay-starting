@@ -73,9 +73,7 @@ export function createRouter(
       prepareMatches(matches);
     },
     subscribe(cb: any) {
-      console.log(__state.nextId);
       const id = __state.nextId++;
-      console.log(id, __state.nextId);
       const dispose = () => {
         __state.subscribers.delete(id);
       };
