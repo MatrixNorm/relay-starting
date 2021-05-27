@@ -21,12 +21,12 @@ export default function Link(props) {
   // Callback data for the route:
   // we pass this to onMouseDown, since this is a stronger
   // signal that the user will likely complete the navigation
-  const preloadRoute = useCallback(() => {
-    router.preload(props.to);
-  }, [props.to, router]);
+  // const preloadRoute = useCallback(() => {
+  //   router.preload(props.to);
+  // }, [props.to, router]);
 
   return (
-    <a href={props.to} onClick={changeRoute} onMouseDown={preloadRoute}>
+    <a href={props.to} onClick={changeRoute}>
       {props.children}
     </a>
   );
