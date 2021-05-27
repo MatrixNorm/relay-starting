@@ -9,7 +9,7 @@ import getRoutes from "./routes";
 
 import { IEnvironment } from "relay-runtime";
 
-const relayEnv = createMockedRelayEnvironment({ timeout: 1000 });
+const relayEnv = createMockedRelayEnvironment({ timeout: 500 });
 const router = createRouter(getRoutes(relayEnv));
 
 function App({ env }: { env: IEnvironment }) {

@@ -13,6 +13,7 @@ import { IEnvironment } from "relay-runtime";
 
 const getRoutes = (relayEnv: IEnvironment) => [
   {
+    path: undefined,
     component: Root,
     prepare: () => {},
     routes: [
@@ -33,12 +34,29 @@ const getRoutes = (relayEnv: IEnvironment) => [
         path: "/composer/:id",
         component: ComposerDetailedView,
         prepare: (params: { id: any }) => {
+          console.log("ComposerDetailedView");
+          //console.trace();
           return {
             queryRef: loadQuery(relayEnv, ComposerDetailedViewQuery, {
               composerId: params.id,
             }),
           };
         },
+        routes: [
+          {
+            path: "/composer/:id",
+            //exact: true,
+            prepare: () => {
+              //console.log(2222);
+            },
+          },
+          {
+            path: "/composer/:id/work/:workId",
+            prepare: () => {
+              //console.log(1111);
+            },
+          },
+        ],
       },
     ],
   },

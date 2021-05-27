@@ -51,7 +51,7 @@ export function createRouter(
     }
     const matches = matchRoute(routes, location);
     const entries = prepareMatches(matches);
-    console.log(entries);
+    console.log("history.listen", entries);
     const nextEntry = {
       location,
       entries,
