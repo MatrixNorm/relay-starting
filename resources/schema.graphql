@@ -1,6 +1,7 @@
 type Query {
   composers(country: Country): [Composer!]
   composerById(composerId: ID!): Composer
+  workById(workId: ID!): Work
   __schema: __Schema!
   __type(name: String!): __Type
 }
@@ -9,6 +10,7 @@ type Composer implements Node {
   id: ID!
   name: String!
   country: Country
+  bio: String
   works(kind: WorkKind): [Work!]
 }
 
@@ -31,6 +33,7 @@ type Work implements Node {
   author: Composer
   kind: WorkKind
   yearOfPublication: Int
+  description: String
 }
 
 enum WorkKind {

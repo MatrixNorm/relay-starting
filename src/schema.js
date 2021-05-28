@@ -33,6 +33,7 @@ const Composer = new GraphQLObjectType({
     id: { type: new GraphQLNonNull(GraphQLID) },
     name: { type: new GraphQLNonNull(GraphQLString) },
     country: { type: Country },
+    bio: { type: GraphQLString },
     works: {
       type: new GraphQLList(new GraphQLNonNull(Work)),
       args: { kind: { type: WorkKind } },
@@ -49,6 +50,7 @@ const Work = new GraphQLObjectType({
     author: { type: Composer },
     kind: { type: WorkKind },
     yearOfPublication: { type: GraphQLInt },
+    description: { type: GraphQLString },
   }),
 });
 
@@ -80,6 +82,10 @@ const queryFields = {
   composerById: {
     type: Composer,
     args: { composerId: { type: new GraphQLNonNull(GraphQLID) } },
+  },
+  workById: {
+    type: Work,
+    args: { workId: { type: new GraphQLNonNull(GraphQLID) } },
   },
 };
 

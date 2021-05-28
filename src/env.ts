@@ -27,10 +27,13 @@ const store = createMockStore({
         ];
         return goats[Math.floor(Math.random() * goats.length)];
       },
+      bio: "Wow. Such great composer.",
       works: [...new Array(4)],
     }),
     Work: () => ({
       name: `Op. ${Math.floor(Math.random() * 100) + 1}`,
+      description:
+        "Greate example of Modal Mixture Common Tone Enharmonic Double Chromatic Mediant Modulation",
     }),
   },
 });

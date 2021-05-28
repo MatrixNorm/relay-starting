@@ -29,7 +29,7 @@ export default function ComposerSummary(props: {
   return (
     <div>
       <h4>
-        <Link to={`/composer/${data.id}`}>{data.name} </Link>
+        <Link to={`/composer/${data.id}`}>{data.name}</Link>
       </h4>
       <WorkList works={data.works} />
     </div>
