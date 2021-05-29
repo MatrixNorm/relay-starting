@@ -20,14 +20,13 @@ export const Query = graphql`
 `;
 
 export function ComposerViewDefault(props: {
-  prepared: { queryRef: PreloadedQuery<ComposerViewDefaultQuery> };
+  queryRef: PreloadedQuery<ComposerViewDefaultQuery>;
   routeData: any;
-  children: any;
 }) {
-  const data = usePreloadedQuery(Query, props.prepared.queryRef);
+  const data = usePreloadedQuery(Query, props.queryRef);
   const works = data.composerById?.works;
   return (
-    <React.Suspense fallback={"Loading..."}>
+    <>
       {data.composerById ? (
         works ? (
           <ul>
@@ -44,6 +43,20 @@ export function ComposerViewDefault(props: {
       ) : (
         <div>Not found</div>
       )}
+    </>
+  );
+}
+
+export default function (props: {
+  prepared: { queryRef: PreloadedQuery<ComposerViewDefaultQuery> };
+  routeData: any;
+}) {
+  return (
+    <React.Suspense fallback={"Loading..."}>
+      <ComposerViewDefault
+        queryRef={props.prepared.queryRef}
+        routeData={props.routeData}
+      />
     </React.Suspense>
   );
 }

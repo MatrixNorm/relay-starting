@@ -4,17 +4,14 @@ import {
   ComposersSearchView,
   InitialQuery as ComposersSearchViewInitialQuery,
 } from "./components/ComposersSearchView";
-import { ComposerView, Query as ComposerViewQuery } from "./components/ComposerView";
-import {
-  ComposerViewDefault,
+import ComposerView, { Query as ComposerViewQuery } from "./components/ComposerView";
+import ComposerViewDefault, {
   Query as ComposerViewDefaultQuery,
 } from "./components/ComposerViewDefault";
-import {
-  ComposerViewWork,
+import ComposerViewWork, {
   Query as ComposerViewWorkQuery,
 } from "./components/ComposerViewWork";
-import {
-  ComposerViewBio,
+import ComposerViewBio, {
   Query as ComposerViewBioQuery,
 } from "./components/ComposerViewBio";
 
@@ -44,7 +41,7 @@ const getRoutes = (relayEnv: IEnvironment) => [
         path: "/composer/:id",
         component: ComposerView,
         prepare: (params: { id: any }) => {
-          console.log("ComposerDetailedView");
+          console.log("ComposerView");
           return {
             queryRef: loadQuery(relayEnv, ComposerViewQuery, {
               composerId: params.id,

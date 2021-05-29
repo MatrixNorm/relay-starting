@@ -19,14 +19,31 @@ export const Query = graphql`
 `;
 
 export function ComposerViewWork(props: {
+  queryRef: PreloadedQuery<ComposerViewWorkQuery>;
+}) {
+  const data = usePreloadedQuery(Query, props.queryRef);
+  const work = data.workById;
+  return (
+    <>
+      {work ? (
+        <div>
+          <h3>{work.name}</h3>
+          <div>{work.description}</div>
+        </div>
+      ) : (
+        <div>Not found</div>
+      )}
+    </>
+  );
+}
+
+export default function (props: {
   prepared: { queryRef: PreloadedQuery<ComposerViewWorkQuery> };
   routeData: any;
 }) {
-  const data = usePreloadedQuery(Query, props.prepared.queryRef);
-  const work = data.workById;
   return (
     <React.Suspense fallback={"Loading..."}>
-      {work ? <div>{work.description}</div> : <div>Not found</div>}
+      <ComposerViewWork queryRef={props.prepared.queryRef} />
     </React.Suspense>
   );
 }

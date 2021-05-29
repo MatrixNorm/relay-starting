@@ -32,8 +32,8 @@ const store = createMockStore({
     }),
     Work: () => ({
       name: `Op. ${Math.floor(Math.random() * 100) + 1}`,
-      description:
-        "Greate example of Modal Mixture Common Tone Enharmonic Double Chromatic Mediant Modulation",
+      description: `Composed in summer of 1901 work is a great example of modal
+       mixture common tone enharmonic double chromatic mediant modulation`,
     }),
   },
 });

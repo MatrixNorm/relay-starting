@@ -15,14 +15,24 @@ export const Query = graphql`
 `;
 
 export function ComposerViewBio(props: {
-  prepared: { queryRef: PreloadedQuery<ComposerViewBioQuery> };
-  routeData: any;
+  queryRef: PreloadedQuery<ComposerViewBioQuery>;
 }) {
-  const data = usePreloadedQuery(Query, props.prepared.queryRef);
+  const data = usePreloadedQuery(Query, props.queryRef);
   const composer = data.composerById;
   return (
     <React.Suspense fallback={"Loading..."}>
       {composer ? <div>{composer.bio}</div> : <div>Not found</div>}
+    </React.Suspense>
+  );
+}
+
+export default function (props: {
+  prepared: { queryRef: PreloadedQuery<ComposerViewBioQuery> };
+  routeData: any;
+}) {
+  return (
+    <React.Suspense fallback={"Loading..."}>
+      <ComposerViewBio queryRef={props.prepared.queryRef} />
     </React.Suspense>
   );
 }
