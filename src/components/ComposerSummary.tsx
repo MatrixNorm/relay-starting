@@ -31,19 +31,25 @@ export default function ComposerSummary(props: {
       <h4>
         <Link to={`/composer/${data.id}`}>{data.name}</Link>
       </h4>
-      <WorkList works={data.works} />
+      <WorkList works={data.works} composerId={data.id} />
     </div>
   );
 }
 
-function WorkList({ works }: { works: ComposerSummary_composer["works"] }) {
+function WorkList({
+  works,
+  composerId,
+}: {
+  works: ComposerSummary_composer["works"];
+  composerId: string;
+}) {
   return (
     <>
       {works ? (
         <ul>
           {works.map((work) => (
             <li key={work.id}>
-              <span>{work.name}</span>
+              <Link to={`/composer/${composerId}/work/${work.id}`}>{work.name}</Link>
               <span> {work.kind}</span>
             </li>
           ))}
