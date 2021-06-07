@@ -1,36 +1,25 @@
 import { loadQuery } from "react-relay/hooks";
-import Root from "./components/Root";
-import {
-  ComposersSearchView,
-  InitialQuery as ComposersSearchViewInitialQuery,
-} from "./components/ComposersSearchView";
-import ComposerView, { Query as ComposerViewQuery } from "./components/ComposerView";
-import ComposerViewDefault, {
-  Query as ComposerViewDefaultQuery,
-} from "./components/ComposerViewDefault";
-import ComposerViewWork, {
-  Query as ComposerViewWorkQuery,
-} from "./components/ComposerViewWork";
-import ComposerViewBio, {
-  Query as ComposerViewBioQuery,
-} from "./components/ComposerViewBio";
-
+import JSResource from "./JSResource";
 // types
 import { IEnvironment } from "relay-runtime";
 
 const getRoutes = (relayEnv: IEnvironment) => [
   {
     path: undefined,
-    component: Root,
+    component: JSResource("./components/Root", () => import("./components/Root")),
     prepare: () => {},
     routes: [
       {
         path: "/",
         exact: true,
-        component: ComposersSearchView,
+        component: JSResource(
+          "./components/ComposersSearchView",
+          () => import("./components/ComposersSearchView")
+        ),
         prepare: () => {
+          const query = require("__relay__/ComposersSearchViewInitialQuery.graphql");
           return {
-            initialQueryRef: loadQuery(relayEnv, ComposersSearchViewInitialQuery, {
+            initialQueryRef: loadQuery(relayEnv, query, {
               country: null,
               workKind: null,
             }),
@@ -39,11 +28,14 @@ const getRoutes = (relayEnv: IEnvironment) => [
       },
       {
         path: "/composer/:id",
-        component: ComposerView,
+        component: JSResource(
+          "./components/ComposerView",
+          () => import("./components/ComposerView")
+        ),
         prepare: (params: { id: any }) => {
-          console.log("ComposerView");
+          const query = require("__relay__/ComposerViewQuery.graphql");
           return {
-            queryRef: loadQuery(relayEnv, ComposerViewQuery, {
+            queryRef: loadQuery(relayEnv, query, {
               composerId: params.id,
             }),
           };
@@ -51,11 +43,14 @@ const getRoutes = (relayEnv: IEnvironment) => [
         routes: [
           {
             path: "/composer/:id/work/:workId",
-            component: ComposerViewWork,
+            component: JSResource(
+              "./components/ComposerViewWork",
+              () => import("./components/ComposerViewWork")
+            ),
             prepare: (params: { workId: any }) => {
-              console.log("ComposerViewWork");
+              const query = require("__relay__/ComposerViewWorkQuery.graphql");
               return {
-                queryRef: loadQuery(relayEnv, ComposerViewWorkQuery, {
+                queryRef: loadQuery(relayEnv, query, {
                   workId: params.workId,
                 }),
               };
@@ -63,11 +58,14 @@ const getRoutes = (relayEnv: IEnvironment) => [
           },
           {
             path: "/composer/:id/bio",
-            component: ComposerViewBio,
+            component: JSResource(
+              "./components/ComposerViewBio",
+              () => import("./components/ComposerViewBio")
+            ),
             prepare: (params: { id: any }) => {
-              console.log("ComposerViewBio");
+              const query = require("__relay__/ComposerViewBioQuery.graphql");
               return {
-                queryRef: loadQuery(relayEnv, ComposerViewBioQuery, {
+                queryRef: loadQuery(relayEnv, query, {
                   composerId: params.id,
                 }),
               };
@@ -75,11 +73,14 @@ const getRoutes = (relayEnv: IEnvironment) => [
           },
           {
             path: "/composer/:id",
-            component: ComposerViewDefault,
+            component: JSResource(
+              "./components/ComposerViewDefault",
+              () => import("./components/ComposerViewDefault")
+            ),
             prepare: (params: { id: any }) => {
-              console.log("ComposerViewDefault");
+              const query = require("__relay__/ComposerViewDefaultQuery.graphql");
               return {
-                queryRef: loadQuery(relayEnv, ComposerViewDefaultQuery, {
+                queryRef: loadQuery(relayEnv, query, {
                   composerId: params.id,
                 }),
               };

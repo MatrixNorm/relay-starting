@@ -3,7 +3,7 @@
     "allowJs": true,
     "jsx": "react",
     "lib": ["dom", "esnext"],
-    "module": "es2015",
+    "module": "esnext",
     "noEmit": true,
     "moduleResolution": "node", // ???
     "strict": true,

@@ -6,7 +6,7 @@ import { createRouter } from "./routing/createRouter";
 import RouterRenderer from "./routing/RouteRenderer";
 import RoutingContext from "./routing/RoutingContext";
 import getRoutes from "./routes";
-
+//types
 import { IEnvironment } from "relay-runtime";
 
 const relayEnv = createMockedRelayEnvironment({ timeout: 1000 });

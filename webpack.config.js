@@ -25,6 +25,9 @@ module.exports = {
   resolve: {
     // ???
     extensions: [".js", ".jsx", ".ts", ".tsx"],
+    alias: {
+      __relay__: path.resolve(__dirname, "src/__relay__"),
+    },
   },
   devtool: "source-map",
   devServer: {

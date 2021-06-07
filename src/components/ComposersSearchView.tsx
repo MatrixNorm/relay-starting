@@ -17,7 +17,7 @@ function removeUndefinedValues(ob: Object) {
   return Object.fromEntries(pairs);
 }
 
-export const InitialQuery = graphql`
+const InitialQuery = graphql`
   query ComposersSearchViewInitialQuery($country: Country, $workKind: WorkKind) {
     countryValues: __type(name: "Country") {
       enumValues {
@@ -47,7 +47,7 @@ const ComposersQuery = graphql`
 
 type $Vars = $ComposersQuery["variables"];
 
-export function ComposersSearchView(props: {
+export default function ComposersSearchView(props: {
   prepared: { initialQueryRef: PreloadedQuery<$InitialQuery> };
 }) {
   const [state, setState] = useState<{

@@ -105,6 +105,10 @@ function prepareMatches(matches: any) {
   return matches.map((match: any) => {
     const { route, match: matchData } = match;
     const prepared = route.prepare(matchData.params);
+    const Component = route.component.get();
+    if (Component == null) {
+      route.component.load();
+    }
     return { component: route.component, prepared, routeData: matchData };
   });
 }
