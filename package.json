@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "writeSchema": "babel-node ./scripts/writeSchema.js"
+    "writeSchema": "babel-node ./scripts/writeSchema.js",
+    "dev": "webpack serve",
+    "dev:analyze": "webpack serve --env bundleanalyzer",
+    "prod": "webpack --env prod",
+    "prod:analyze": "webpack --env prod --env bundleanalyzer"
   },
   "keywords": [],
   "author": "",

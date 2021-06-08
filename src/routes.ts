@@ -6,15 +6,18 @@ import { IEnvironment } from "relay-runtime";
 const getRoutes = (relayEnv: IEnvironment) => [
   {
     path: undefined,
-    component: JSResource("./components/Root", () => import("./components/Root")),
+    component: JSResource("Root", () => import("./components/Root")),
     prepare: () => {},
     routes: [
       {
         path: "/",
         exact: true,
         component: JSResource(
-          "./components/ComposersSearchView",
-          () => import("./components/ComposersSearchView")
+          "ComposersSearchView",
+          () =>
+            import(
+              /* webpackChunkName: 'ComposersSearchView' */ "./components/ComposersSearchView"
+            )
         ),
         prepare: () => {
           const query = require("__relay__/ComposersSearchViewInitialQuery.graphql");
@@ -29,8 +32,8 @@ const getRoutes = (relayEnv: IEnvironment) => [
       {
         path: "/composer/:id",
         component: JSResource(
-          "./components/ComposerView",
-          () => import("./components/ComposerView")
+          "ComposerView",
+          () => import(/* webpackChunkName: 'ComposerView' */ "./components/ComposerView")
         ),
         prepare: (params: { id: any }) => {
           const query = require("__relay__/ComposerViewQuery.graphql");
@@ -44,8 +47,11 @@ const getRoutes = (relayEnv: IEnvironment) => [
           {
             path: "/composer/:id/work/:workId",
             component: JSResource(
-              "./components/ComposerViewWork",
-              () => import("./components/ComposerViewWork")
+              "ComposerViewWork",
+              () =>
+                import(
+                  /* webpackChunkName: 'ComposerViewWork' */ "./components/ComposerViewWork"
+                )
             ),
             prepare: (params: { workId: any }) => {
               const query = require("__relay__/ComposerViewWorkQuery.graphql");
@@ -59,8 +65,11 @@ const getRoutes = (relayEnv: IEnvironment) => [
           {
             path: "/composer/:id/bio",
             component: JSResource(
-              "./components/ComposerViewBio",
-              () => import("./components/ComposerViewBio")
+              "ComposerViewBio",
+              () =>
+                import(
+                  /* webpackChunkName: 'ComposerViewBio' */ "./components/ComposerViewBio"
+                )
             ),
             prepare: (params: { id: any }) => {
               const query = require("__relay__/ComposerViewBioQuery.graphql");
@@ -74,8 +83,11 @@ const getRoutes = (relayEnv: IEnvironment) => [
           {
             path: "/composer/:id",
             component: JSResource(
-              "./components/ComposerViewDefault",
-              () => import("./components/ComposerViewDefault")
+              "ComposerViewDefault",
+              () =>
+                import(
+                  /* webpackChunkName: 'ComposerViewDefault' */ "./components/ComposerViewDefault"
+                )
             ),
             prepare: (params: { id: any }) => {
               const query = require("__relay__/ComposerViewDefaultQuery.graphql");
