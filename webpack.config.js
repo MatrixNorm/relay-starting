@@ -29,9 +29,32 @@ module.exports = (env) => {
     optimization: {
       splitChunks: {
         cacheGroups: {
+          react: {
+            name: "react",
+            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+            chunks: "all",
+          },
+          relay: {
+            name: "relay",
+            test: /[\\/]node_modules[\\/](react-relay|relay-runtime)[\\/]/,
+            chunks: "all",
+          },
           vendor: {
-            name: "node_vendors",
-            test: /[\\/]node_modules[\\/]/,
+            name: "vendors",
+            test: (mod) => {
+              if (/[\\/]node_modules[\\/](react|react-dom)[\\/]/.test(mod.context)) {
+                return false;
+              }
+              if (
+                /[\\/]node_modules[\\/](react-relay|relay-runtime)[\\/]/.test(mod.context)
+              ) {
+                return false;
+              }
+              if (/[\\/]node_modules[\\/]/.test(mod.context)) {
+                return true;
+              }
+              return false;
+            },
             chunks: "all",
           },
         },
