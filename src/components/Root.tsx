@@ -1,11 +1,11 @@
 import * as React from "react";
 import Link from "../routing/Link";
-const styles = require("./styles.css");
+import styles from "./styles.css";
 
 export default function Root(props: { children: any }) {
   return (
     <div>
-      <nav>
+      <nav className={styles.navbar}>
         <Link to="/">Home</Link>
       </nav>
       {props.children}

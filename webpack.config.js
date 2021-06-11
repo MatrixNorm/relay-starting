@@ -116,7 +116,16 @@ function buildDevConfig(commonConfig, env) {
 
   devConfig.module.rules.push({
     test: /\.(css)$/,
-    use: ["style-loader", "css-loader"],
+    use: [
+      "style-loader",
+      {
+        loader: "css-loader",
+        options: {
+          importLoaders: 1,
+          modules: true,
+        },
+      },
+    ],
   });
 
   return devConfig;
