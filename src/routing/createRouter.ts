@@ -91,7 +91,6 @@ export function createRouter(
  */
 function matchRoute(routes: any, location: any) {
   const matchedRoutes = rrc.matchRoutes(routes, location.pathname);
-  console.log({ location, matchedRoutes });
   if (!Array.isArray(matchedRoutes) || matchedRoutes.length === 0) {
     throw new Error("No route for " + location.pathname);
   }

@@ -39,13 +39,30 @@ module.exports = (env) => {
 };
 
 function buildProdConfig(commonConfig, env) {
+  const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
   const plugins = [
     new HtmlWebpackPlugin({
       template: "./index.template.html",
     }),
+    new MiniCssExtractPlugin(),
   ];
 
-  let prodConfig = { ...commonConfig, mode: "production", plugins };
+  let prodConfig = { ...commonConfig, mode: "development", plugins };
+
+  prodConfig.module.rules.push({
+    test: /\.(css)$/,
+    use: [
+      { loader: MiniCssExtractPlugin.loader },
+      {
+        loader: "css-loader",
+        options: {
+          importLoaders: 1,
+          modules: true,
+        },
+      },
+    ],
+  });
 
   prodConfig.optimization = {
     splitChunks: {
@@ -77,6 +94,12 @@ function buildProdConfig(commonConfig, env) {
             return false;
           },
           chunks: "all",
+        },
+        styles: {
+          name: "styles",
+          type: "css/mini-extract",
+          chunks: "all",
+          enforce: true,
         },
       },
     },
