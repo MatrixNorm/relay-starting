@@ -103,11 +103,15 @@ function matchRoute(routes: any, location: any) {
 function prepareMatches(matches: any) {
   return matches.map((match: any) => {
     const { route, match: matchData } = match;
-    const prepared = route.prepare(matchData.params);
-    const Component = route.component.get();
-    if (Component == null) {
-      route.component.load();
+    if (route.prepare) {
+      const prepared = route.prepare(matchData.params);
+      const Component = route.component.get();
+      if (Component == null) {
+        route.component.load();
+      }
+      return { component: route.component, prepared, routeData: matchData };
     }
-    return { component: route.component, prepared, routeData: matchData };
+    console.log(route)
+    return { component: route.component, routeData: matchData };
   });
 }

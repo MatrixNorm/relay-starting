@@ -8,7 +8,6 @@ const getRoutes = (relayEnv: IEnvironment) => [
   {
     path: undefined,
     component: Root,
-    prepare: () => {},
     routes: [
       {
         path: "/",

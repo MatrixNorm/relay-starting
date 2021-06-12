@@ -14,9 +14,13 @@ import RoutingContext from "./RoutingContext";
  * in a child component.
  */
 function RouteComponent(props: any) {
-  const Component = props.component.read();
-  const { children, routeData, prepared } = props;
-  return React.createElement(Component, { routeData, prepared, children });
+  if (props.prepared) {
+    const Component = props.component.read();
+    const { children, routeData, prepared } = props;
+    return React.createElement(Component, { routeData, prepared, children });
+  }
+  const { component, children, routeData } = props;
+  return React.createElement(component, { routeData, children });
 }
 
 /**
