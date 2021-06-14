@@ -111,7 +111,7 @@ function prepareMatches(matches: any) {
       }
       return { component: route.component, prepared, routeData: matchData };
     }
-    console.log(route)
+    console.log(route);
     return { component: route.component, routeData: matchData };
   });
 }

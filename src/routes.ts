@@ -1,10 +1,19 @@
 import { loadQuery } from "react-relay/hooks";
-import JSResource from "./JSResource";
+import JSResource, { Resource } from "./JSResource";
 import Root from "./components/Root";
 // types
 import { IEnvironment } from "relay-runtime";
+import { ComponentType } from "react";
 
-const getRoutes = (relayEnv: IEnvironment) => [
+type RouteEntry = {
+  path: string | undefined;
+  exact?: boolean;
+  component: Resource | ComponentType;
+  prepare?: (params: any) => any;
+  routes?: RouteEntry[];
+};
+
+const getRoutes = (relayEnv: IEnvironment): RouteEntry[] => [
   {
     path: undefined,
     component: Root,

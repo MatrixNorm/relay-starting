@@ -1,22 +1,24 @@
+import { ComponentType } from "react";
+
 /**
  * A cache of resources to avoid loading the same module twice. This is important
  * because Webpack dynamic imports only expose an asynchronous API for loading
  * modules, so to be able to access already-loaded modules synchronously we
  * must have stored the previous result somewhere.
  */
-const resourceMap = new Map();
+const resourceMap = new Map<string, Resource>();
 
 /**
  * A generic resource: given some method to asynchronously load a value - the loader()
  * argument - it allows accessing the state of the resource.
  */
-class Resource {
+export class Resource {
   _error: any;
-  _loader: any;
+  _loader: () => any;
   _promise: any;
-  _result: any;
+  _result: ComponentType | null;
 
-  constructor(loader: any) {
+  constructor(loader: () => any) {
     this._error = null;
     this._loader = loader;
     this._promise = null;
@@ -92,7 +94,7 @@ class Resource {
  * @param {*} moduleId A globally unique identifier for the resource used for caching
  * @param {*} loader A method to load the resource's data if necessary
  */
-export default function JSResource(moduleId: any, loader: any) {
+export default function JSResource(moduleId: string, loader: () => any): Resource {
   let resource = resourceMap.get(moduleId);
   if (resource == null) {
     resource = new Resource(loader);
