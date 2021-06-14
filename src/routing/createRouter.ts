@@ -8,23 +8,24 @@ import { ComponentType } from "react";
 type $History = h.BrowserHistory<h.State>;
 type $Location = h.Location<h.State>;
 
-type $Match = {
+export type $Match = {
   params: any;
   isExact: boolean;
   path: string;
   url: string;
 };
 
-type $Entry =
+export type $Entry =
   | {
-      component: Resource;
+      isResource: true;
+      resource: Resource;
       prepared: any;
       routeData: $Match;
     }
   | {
+      isResource: false;
       component: ComponentType<{}>;
       routeData: $Match;
-      prepared?: undefined;
     };
 
 export type $Router = {
@@ -79,9 +80,10 @@ export function createRouter(
     if (location.pathname === currentEntry.location.pathname) {
       return;
     }
+
     const matches = matchRoute(routes, location);
     const entries = prepareMatches(matches);
-    console.log("history.listen", entries);
+
     const nextEntry = {
       location,
       entries,
@@ -130,7 +132,7 @@ function matchRoute(routes: RouteConfig[], location: any) {
 /** !!!
  * Load the data for the matched route, given the params extracted from the route
  */
-function prepareMatches(matches: rrc.MatchedRoute<{}, RouteConfig>[]) {
+function prepareMatches(matches: rrc.MatchedRoute<{}, RouteConfig>[]): $Entry[] {
   return matches.map((match) => {
     const { route, match: matchData } = match;
     // ir lazy resource then load and prepare
@@ -139,9 +141,18 @@ function prepareMatches(matches: rrc.MatchedRoute<{}, RouteConfig>[]) {
       if (route.resourceOrComponent.get() == null) {
         route.resourceOrComponent.load();
       }
-      return { component: route.resourceOrComponent, prepared, routeData: matchData };
+      return {
+        isResource: true,
+        resource: route.resourceOrComponent,
+        prepared,
+        routeData: matchData,
+      };
     }
     // if simple React component then do nothing
-    return { component: route.resourceOrComponent, routeData: matchData };
+    return {
+      isResource: false,
+      component: route.resourceOrComponent,
+      routeData: matchData,
+    };
   });
 }

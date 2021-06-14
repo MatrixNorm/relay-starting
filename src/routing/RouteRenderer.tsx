@@ -1,6 +1,10 @@
 import * as React from "react";
 import { Suspense, useContext, useEffect, useState } from "react";
 import RoutingContext from "./RoutingContext";
+//types
+import { ComponentType, ReactNode } from "react";
+import { $Match } from "./createRouter";
+import { Resource } from "../JSResource";
 
 /**
  * The `component` property from the route entry is a Resource, which may or may not be ready.
@@ -13,13 +17,25 @@ import RoutingContext from "./RoutingContext";
  * our ErrorBoundary/Suspense components, so we have to ensure that the suspend/error happens
  * in a child component.
  */
-function RouteComponent(props: any) {
-  if (props.prepared) {
-    const Component = props.component.read();
-    const { children, routeData, prepared } = props;
-    return React.createElement(Component, { routeData, prepared, children });
-  }
+function RouteResourceComponent(props: {
+  resource: Resource;
+  prepared: any;
+  routeData: $Match;
+  children?: ReactNode;
+}) {
+  const Component = props.resource.read();
+  const { children, routeData, prepared } = props;
+  //@ts-ignore
+  return React.createElement(Component, { routeData, prepared, children });
+}
+
+function RouteSimpleComponent(props: {
+  component: ComponentType<{}>;
+  routeData: $Match;
+  children?: ReactNode;
+}) {
   const { component, children, routeData } = props;
+  //@ts-ignore
   return React.createElement(component, { routeData, children });
 }
 
@@ -76,24 +92,34 @@ export default function RouterRenderer() {
 
   // the bottom-most component is special since it will have no children
   // (though we could probably just pass null children to it)
-  let routeComponent = (
-    <RouteComponent
-      component={firstItem.component}
+  let routeComponent = firstItem.isResource ? (
+    <RouteResourceComponent
+      resource={firstItem.resource}
       prepared={firstItem.prepared}
+      routeData={firstItem.routeData}
+    />
+  ) : (
+    <RouteSimpleComponent
+      component={firstItem.component}
       routeData={firstItem.routeData}
     />
   );
 
   for (let ii = 1; ii < reversedItems.length; ii++) {
     const nextItem = reversedItems[ii];
-    routeComponent = (
-      <RouteComponent
-        component={nextItem.component}
+    routeComponent = nextItem.isResource ? (
+      <RouteResourceComponent
+        resource={nextItem.resource}
         prepared={nextItem.prepared}
         routeData={nextItem.routeData}
-      >
-        {routeComponent}
-      </RouteComponent>
+        children={routeComponent}
+      />
+    ) : (
+      <RouteSimpleComponent
+        component={nextItem.component}
+        routeData={nextItem.routeData}
+        children={routeComponent}
+      />
     );
   }
 
