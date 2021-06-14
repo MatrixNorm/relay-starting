@@ -1,27 +1,19 @@
 import { loadQuery } from "react-relay/hooks";
-import JSResource, { Resource } from "./JSResource";
+import JSResource from "./JSResource";
 import Root from "./components/Root";
 // types
 import { IEnvironment } from "relay-runtime";
-import { ComponentType } from "react";
+import { RouteConfig } from "./routing/createRouter";
 
-type RouteEntry = {
-  path: string | undefined;
-  exact?: boolean;
-  component: Resource | ComponentType;
-  prepare?: (params: any) => any;
-  routes?: RouteEntry[];
-};
-
-const getRoutes = (relayEnv: IEnvironment): RouteEntry[] => [
+const getRoutes = (relayEnv: IEnvironment): RouteConfig[] => [
   {
     path: undefined,
-    component: Root,
+    resourceOrComponent: Root,
     routes: [
       {
         path: "/",
         exact: true,
-        component: JSResource(
+        resourceOrComponent: JSResource(
           "ComposersSearchView",
           () =>
             import(
@@ -40,7 +32,7 @@ const getRoutes = (relayEnv: IEnvironment): RouteEntry[] => [
       },
       {
         path: "/composer/:id",
-        component: JSResource(
+        resourceOrComponent: JSResource(
           "ComposerView",
           () => import(/* webpackChunkName: 'ComposerView' */ "./components/ComposerView")
         ),
@@ -55,7 +47,7 @@ const getRoutes = (relayEnv: IEnvironment): RouteEntry[] => [
         routes: [
           {
             path: "/composer/:id/work/:workId",
-            component: JSResource(
+            resourceOrComponent: JSResource(
               "ComposerViewWork",
               () =>
                 import(
@@ -73,7 +65,7 @@ const getRoutes = (relayEnv: IEnvironment): RouteEntry[] => [
           },
           {
             path: "/composer/:id/bio",
-            component: JSResource(
+            resourceOrComponent: JSResource(
               "ComposerViewBio",
               () =>
                 import(
@@ -91,7 +83,7 @@ const getRoutes = (relayEnv: IEnvironment): RouteEntry[] => [
           },
           {
             path: "/composer/:id",
-            component: JSResource(
+            resourceOrComponent: JSResource(
               "ComposerViewDefault",
               () =>
                 import(

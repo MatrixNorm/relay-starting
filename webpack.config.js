@@ -46,9 +46,17 @@ function buildProdConfig(commonConfig, env) {
       template: "./index.template.html",
     }),
     new MiniCssExtractPlugin(),
-  ];
+    env.bundleanalyzer &&
+      (() => {
+        const BundleAnalyzerPlugin =
+          require("webpack-bundle-analyzer").BundleAnalyzerPlugin;
+        return new BundleAnalyzerPlugin({
+          analyzerMode: "server",
+        });
+      })(),
+  ].filter(Boolean);
 
-  let prodConfig = { ...commonConfig, mode: "development", plugins };
+  let prodConfig = { ...commonConfig, mode: "production", plugins };
 
   prodConfig.module.rules.push({
     test: /\.(css)$/,

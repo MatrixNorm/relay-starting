@@ -1,18 +1,48 @@
 import { createBrowserHistory } from "history";
 import * as rrc from "react-router-config";
 import * as h from "history";
+//types
+import { Resource } from "../JSResource";
+import { ComponentType } from "react";
 
 type $History = h.BrowserHistory<h.State>;
 type $Location = h.Location<h.State>;
+
+type $Match = {
+  params: any;
+  isExact: boolean;
+  path: string;
+  url: string;
+};
+
+type $Entry =
+  | {
+      component: Resource;
+      prepared: any;
+      routeData: $Match;
+    }
+  | {
+      component: ComponentType<{}>;
+      routeData: $Match;
+      prepared?: undefined;
+    };
 
 export type $Router = {
   history: $History;
   get: () => {
     location: $Location;
-    entries: any;
+    entries: $Entry[];
   };
   preload: (pathname: string) => void;
   subscribe: (cb: any) => () => void;
+};
+
+export type RouteConfig = {
+  path: string | undefined;
+  exact?: boolean;
+  resourceOrComponent: Resource | ComponentType;
+  prepare?: (params: any) => any;
+  routes?: RouteConfig[];
 };
 
 /**
@@ -22,7 +52,7 @@ export type $Router = {
  * location to the corresponding route entry, and then preloads the code and data for the route.
  */
 export function createRouter(
-  routes: any,
+  routes: RouteConfig[],
   options?: any
 ): { cleanup: () => void; context: $Router } {
   // Initialize history
@@ -89,7 +119,7 @@ export function createRouter(
 /**
  * Match the current location to the corresponding route entry.
  */
-function matchRoute(routes: any, location: any) {
+function matchRoute(routes: RouteConfig[], location: any) {
   const matchedRoutes = rrc.matchRoutes(routes, location.pathname);
   if (!Array.isArray(matchedRoutes) || matchedRoutes.length === 0) {
     throw new Error("No route for " + location.pathname);
@@ -100,18 +130,18 @@ function matchRoute(routes: any, location: any) {
 /** !!!
  * Load the data for the matched route, given the params extracted from the route
  */
-function prepareMatches(matches: any) {
-  return matches.map((match: any) => {
+function prepareMatches(matches: rrc.MatchedRoute<{}, RouteConfig>[]) {
+  return matches.map((match) => {
     const { route, match: matchData } = match;
-    if (route.prepare) {
-      const prepared = route.prepare(matchData.params);
-      const Component = route.component.get();
-      if (Component == null) {
-        route.component.load();
+    // ir lazy resource then load and prepare
+    if (route.resourceOrComponent instanceof Resource) {
+      const prepared = route.prepare ? route.prepare(matchData.params) : {};
+      if (route.resourceOrComponent.get() == null) {
+        route.resourceOrComponent.load();
       }
-      return { component: route.component, prepared, routeData: matchData };
+      return { component: route.resourceOrComponent, prepared, routeData: matchData };
     }
-    console.log(route);
-    return { component: route.component, routeData: matchData };
+    // if simple React component then do nothing
+    return { component: route.resourceOrComponent, routeData: matchData };
   });
 }
