@@ -7,6 +7,8 @@ import ComposerSummary from "../components/ComposerSummary";
 import { PreloadedQuery } from "react-relay/hooks";
 import { ComposersSearchViewInitialQuery as $InitialQuery } from "__relay__/ComposersSearchViewInitialQuery.graphql";
 import { ComposersSearchViewComposersQuery as $ComposersQuery } from "__relay__/ComposersSearchViewComposersQuery.graphql";
+//css
+import styles from "./ComposersSearchView.css";
 
 function isNully(value: any) {
   return value === null || value === undefined;
@@ -148,6 +150,7 @@ export default function ComposersSearchView(props: {
         <select
           value={calcSelectValue(param)}
           onChange={onChange(param)}
+          className={styles.select}
           test-id={`App-${param}-selector`}
         >
           <option value="">---</option>
@@ -165,15 +168,21 @@ export default function ComposersSearchView(props: {
   return (
     <React.Suspense fallback={"Loading..."}>
       <div>
-        {makeSelect("country")}
-        {makeSelect("workKind")}
+        <div className={styles.filters}>
+          {makeSelect("country")}
+          {makeSelect("workKind")}
 
-        {shouldShowButtons() && (
-          <div>
-            <button onClick={handleApply}>apply</button>
-            <button onClick={handleCancel}>cancel</button>
-          </div>
-        )}
+          {shouldShowButtons() && (
+            <div>
+              <button className={styles.button} onClick={handleApply}>
+                apply
+              </button>
+              <button className={styles.button} onClick={handleCancel}>
+                cancel
+              </button>
+            </div>
+          )}
+        </div>
 
         {composersQueryRef ? (
           <React.Suspense fallback={"Loading..."}>
