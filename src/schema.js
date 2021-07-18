@@ -1,6 +1,7 @@
 import {
   GraphQLEnumType,
   GraphQLID,
+  GraphQLInputObjectType,
   GraphQLInt,
   GraphQLInterfaceType,
   GraphQLList,
@@ -51,6 +52,7 @@ const Work = new GraphQLObjectType({
     kind: { type: WorkKind },
     yearOfPublication: { type: GraphQLInt },
     description: { type: GraphQLString },
+    likesCount: { type: GraphQLInt },
   }),
 });
 
@@ -62,7 +64,7 @@ const WorkKind = enumType("WorkKind", [
   "PIANO_ETUDE",
   "PIANO_SONATA",
   "STRING_QUARTET",
-  "SYMTHONY",
+  "SYMPHONY",
 ]);
 
 const Country = enumType("Country", [
@@ -94,6 +96,11 @@ const Query = new GraphQLObjectType({
   fields: queryFields,
 });
 
+/**
+ * Need thi for writeSchema.js script that generates schema.graphql file
+ * consumed by Relay compiler. The latter needs full graphql schema incluing
+ * types for introspection.
+ */
 export const QueryToPleaseRelayCompiler = new GraphQLObjectType({
   name: "Query",
   fields: {
@@ -108,6 +115,33 @@ export const QueryToPleaseRelayCompiler = new GraphQLObjectType({
   },
 });
 
+export const Mutation = new GraphQLObjectType({
+  name: "Mutation",
+  fields: () => ({
+    incrementWorkLikesCount: {
+      type: new GraphQLNonNull(IncrementWorkLikesCountPayload),
+      args: {
+        input: { type: new GraphQLNonNull(IncrementWorkLikesCountInput) },
+      },
+    },
+  }),
+});
+
+const IncrementWorkLikesCountInput = new GraphQLInputObjectType({
+  name: "IncrementWorkLikesCountInput",
+  fields: {
+    workId: { type: new GraphQLNonNull(GraphQLID) },
+  },
+});
+
+const IncrementWorkLikesCountPayload = new GraphQLObjectType({
+  name: "IncrementWorkLikesCountPayload",
+  fields: {
+    work: { type: Work },
+  },
+});
+
 export default new GraphQLSchema({
   query: Query,
+  mutation: Mutation,
 });

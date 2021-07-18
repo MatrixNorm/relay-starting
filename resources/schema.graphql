@@ -34,6 +34,7 @@ type Work implements Node {
   kind: WorkKind
   yearOfPublication: Int
   description: String
+  likesCount: Int
 }
 
 enum WorkKind {
@@ -44,7 +45,19 @@ enum WorkKind {
   PIANO_ETUDE
   PIANO_SONATA
   STRING_QUARTET
-  SYMTHONY
+  SYMPHONY
+}
+
+type Mutation {
+  incrementWorkLikesCount(input: IncrementWorkLikesCountInput!): IncrementWorkLikesCountPayload!
+}
+
+type IncrementWorkLikesCountPayload {
+  work: Work
+}
+
+input IncrementWorkLikesCountInput {
+  workId: ID!
 }
 
 """

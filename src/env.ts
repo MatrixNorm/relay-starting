@@ -1,4 +1,3 @@
-import { resolvePlugin } from "@babel/core";
 import { addMocksToSchema, createMockStore } from "@graphql-tools/mock";
 import * as gql from "graphql";
 import * as rr from "relay-runtime";
