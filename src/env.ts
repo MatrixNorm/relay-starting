@@ -13,7 +13,7 @@ const mockedSchema = addMocksToSchema({
   schema: makeExecutableSchema({ typeDefs: schemaDefsText }),
   mocks: {
     Composer: () => ({
-      name: "Sergey Prokofiev",
+      name: "Sergei Prokofiev",
     }),
   },
 });
@@ -23,7 +23,11 @@ export const createMockedRelayEnvironment = (
 ) => {
   const fetchFn = async (operation, variables) => {
     await sleepAsync(timeout);
-    const response = await graphql(mockedSchema, operation.text || "", {}, {}, variables);
+    const response = await graphql({
+      schema: mockedSchema,
+      source: operation.text || "",
+      variableValues: variables,
+    });
     return response;
   };
   // @ts-ignore
