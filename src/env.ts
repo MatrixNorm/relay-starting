@@ -4,6 +4,8 @@ import { graphql } from "graphql";
 import { Environment, Network, RecordSource, Store } from "relay-runtime";
 // @ts-ignore
 import schemaDefsText from "raw-loader!./schema.graphql";
+// types
+import { RequestParameters, Variables } from "relay-runtime";
 
 function sleepAsync(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
@@ -13,7 +15,7 @@ const mockedSchema = addMocksToSchema({
   schema: makeExecutableSchema({ typeDefs: schemaDefsText }),
   mocks: {
     Query: () => ({
-      composers: [...new Array(5)],
+      composers: [...new Array(3)],
     }),
     Composer: () => ({
       name: () => {
@@ -21,7 +23,7 @@ const mockedSchema = addMocksToSchema({
           "Beethoven",
           "Mussorgsky",
           "Prokofiev",
-          "Rachmaninov",
+          "Rachmaninoff",
           "Rimsky-Korsakov",
           "Scriabin",
           "Tchaikovsky",
@@ -38,9 +40,13 @@ const mockedSchema = addMocksToSchema({
 export const createMockedRelayEnvironment = (
   { timeout }: { timeout: number } = { timeout: 500 }
 ) => {
-  const fetchFn = async (operation, variables) => {
+  const fetchFn = async (operation: RequestParameters, variables: Variables) => {
     await sleepAsync(timeout);
-    const response = await graphql(mockedSchema, operation.text || "", {}, {}, variables);
+    const response = await graphql({
+      schema: mockedSchema,
+      source: operation.text || "",
+      variableValues: variables,
+    });
     return response;
   };
   // @ts-ignore

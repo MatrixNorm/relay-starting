@@ -20,9 +20,22 @@ const fragmentRef = graphql`
   }
 `;
 
+/**
+ * !!! PROBLEM !!!
+ * Possible mismatch between fragment declaration and
+ * imported types. It's easy to import wrong file.
+ *
+ */
+
 export default function ComposerSummary(props: {
   composer: ComposerSummary_composer$key;
 }) {
+  /**
+   * In runtime `composer` is an object with shape
+   * { id, __fragmentOwner, __fragments, __id }.
+   * It has no actual data and has only "recipe" to extract
+   * data from the Relay store.
+   */
   const data = useFragment(fragmentRef, props.composer);
   return (
     <div>

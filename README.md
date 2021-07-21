@@ -1,5 +1,11 @@
-### devDependencies
+###babel-plugin-relay
 
-**babel-plugin-relay** transforms graphql`query or fragment` to javascript objects understandable by runtime. Also see _plugins_ in `.babelrc`.
+Transforms syntax graphql`query or fragment` to javascript objects understandable by runtime. Make sure `babel-plugin-macros` is added to `.babelrc`:
+
+```json
+{
+  "plugins": ["macros"]
+}
+```
 
 **relay-compiler** XXX watchman
