@@ -8,4 +8,8 @@ Transforms syntax graphql`query or fragment` to javascript objects understandabl
 }
 ```
 
-**relay-compiler** XXX watchman
+###relay-compiler
+XXX watchman
+
+###debug browser app in Vscode
+https://code.visualstudio.com/docs/nodejs/browser-debugging
