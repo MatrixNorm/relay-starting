@@ -62,7 +62,7 @@ const CompositionType = enumType("CompositionType", [
   "PIANO_ETUDE",
   "PIANO_SONATA",
   "STRING_QUARTET",
-  "SYMTHONY",
+  "SYMPHONY",
 ]);
 
 const Country = enumType("Country", [

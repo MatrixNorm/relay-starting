@@ -38,5 +38,5 @@ enum CompositionType {
   PIANO_ETUDE
   PIANO_SONATA
   STRING_QUARTET
-  SYMTHONY
+  SYMPHONY
 }
