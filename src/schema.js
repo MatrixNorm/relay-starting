@@ -60,7 +60,7 @@ const WorkKind = enumType("WorkKind", [
   "PIANO_ETUDE",
   "PIANO_SONATA",
   "STRING_QUARTET",
-  "SYMTHONY",
+  "SYMPHONY",
 ]);
 
 const Country = enumType("Country", [
@@ -79,11 +79,27 @@ const queryFields = {
   },
 };
 
-const Query = new GraphQLObjectType({
-  name: "Query",
-  fields: queryFields,
-});
+/**
+  We have to have two different schemes one for Relay compiler another
+  for graphql-tools.
 
+  Relay compiler demands explicit introspection fields on Query type:
+
+  ERROR:
+  - Unknown field '__type' on type 'Query'.
+    
+    App.tsx:3:5
+    2 |   query AppRootQuery($country: Country) {
+    3 |     __type(name: "Country") {
+      |     ^
+    4 |       enumValues {
+
+  
+  But graphql-tools does not like that:
+      Uncaught Error: Schema must contain uniquely named types 
+      but contains multiple types named "__Schema".
+    
+ */
 export const QueryToPleaseRelayCompiler = new GraphQLObjectType({
   name: "Query",
   fields: {
@@ -99,5 +115,8 @@ export const QueryToPleaseRelayCompiler = new GraphQLObjectType({
 });
 
 export default new GraphQLSchema({
-  query: Query,
+  query: new GraphQLObjectType({
+    name: "Query",
+    fields: queryFields,
+  }),
 });
