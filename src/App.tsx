@@ -10,21 +10,32 @@ import {
 } from "react-relay/hooks";
 import { createMockedRelayEnvironment } from "./env";
 import ComposerSummary from "./ComposerSummary";
-import { AppRootQuery } from "__relay__/AppRootQuery.graphql";
+import { AppRootQuery, Country } from "__relay__/AppRootQuery.graphql";
+
+/*
+  XXX need some generic decode/encode library
+*/
+function decodeCountry(externalValue: string): Country | undefined {
+  return (externalValue as Country) || undefined;
+}
+
+function encodeCountry(country: Country | null | undefined): string | undefined {
+  return country || undefined;
+}
 
 function ComposerList(props: {
   queryRef: PreloadedQuery<AppRootQuery>;
-  reloadQuery: any;
+  reloadQuery: (variables: AppRootQuery["variables"]) => void;
 }) {
-  const data = usePreloadedQuery(appQuery, props.queryRef);
-  const { composers, __type } = data;
+  const { composers, __type } = usePreloadedQuery(appQuery, props.queryRef);
+
   return (
     <div>
-      {__type?.enumValues && (
+      {__type?.enumValues ? (
         <select
-          defaultValue={props.queryRef.variables.country || undefined}
+          defaultValue={encodeCountry(props.queryRef.variables.country)}
           onChange={(evt) => {
-            props.reloadQuery({ country: evt.target.value || undefined });
+            props.reloadQuery({ country: decodeCountry(evt.target.value) });
           }}
         >
           <option value={undefined}></option>
@@ -33,6 +44,10 @@ function ComposerList(props: {
               {value.name}
             </option>
           ))}
+        </select>
+      ) : (
+        <select>
+          <option value={undefined}></option>
         </select>
       )}
       {composers
@@ -45,6 +60,10 @@ function ComposerList(props: {
 }
 
 function App(props: { initialQueryRef: PreloadedQuery<AppRootQuery> }) {
+  /*
+    reloadQuery calls loadQuery with new query params.
+    queryRef is either the result of this call or initialQueryRef.
+  */
   const [queryRef, reloadQuery] = useQueryLoader(appQuery, props.initialQueryRef);
   return queryRef ? <ComposerList queryRef={queryRef} reloadQuery={reloadQuery} /> : null;
 }
@@ -65,6 +84,10 @@ const appQuery = graphql`
   }
 `;
 
+/*
+  Eagerly makes request to data API.
+  Must be done outside of render. (XXX: why?)
+*/
 const initialQueryRef = loadQuery<AppRootQuery>(relayEnv, appQuery, {
   country: "Russia",
 });
@@ -85,5 +108,6 @@ ReactDOM.render(<Root />, document.getElementById("app"));
  * Problems:
  * 1. Select element is reloaded every time new option is chosen.
  *    Right thing to do is to load options on first render and
- *    subsequently reload only list of composers.
+ *    subsequently reload only list of composers. This can be
+ *    achieved by more clever use of suspense boundaries.
  */
