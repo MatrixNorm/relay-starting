@@ -19,36 +19,40 @@ function decodeCountry(externalValue: string): Country | undefined {
   return (externalValue as Country) || undefined;
 }
 
-function encodeCountry(country: Country | null | undefined): string | undefined {
-  return country || undefined;
-}
-
 function ComposerList(props: {
   queryRef: PreloadedQuery<AppRootQuery>;
   reloadQuery: (variables: AppRootQuery["variables"]) => void;
 }) {
   const { composers, __type } = usePreloadedQuery(appQuery, props.queryRef);
 
+  /*
+    __type.enumValues is types as string array. If introspection query was
+    done correctly all these values are of Country type. There is no need to
+    do decoding in runtime - more appropriate is to write singe unit test.
+    And to please Typescript it's ok to do type casting.
+  */
+  const countries = (__type?.enumValues || []).map((v) => v.name) as Country[];
+
+  const initiallySelectedValue = props.queryRef.variables.country || undefined;
+
   return (
     <div>
-      {__type?.enumValues ? (
+      {countries.length > 0 ? (
         <select
-          defaultValue={encodeCountry(props.queryRef.variables.country)}
+          defaultValue={initiallySelectedValue}
           onChange={(evt) => {
             props.reloadQuery({ country: decodeCountry(evt.target.value) });
           }}
         >
           <option value={undefined}></option>
-          {__type.enumValues.map((value, j) => (
-            <option value={value.name} key={j}>
-              {value.name}
+          {countries.map((countryName, j) => (
+            <option value={countryName} key={j}>
+              {countryName}
             </option>
           ))}
         </select>
       ) : (
-        <select>
-          <option value={undefined}></option>
-        </select>
+        <select disabled></select>
       )}
       {composers
         ? composers.map((composer) => (

@@ -46,6 +46,7 @@ export const createMockedRelayEnvironment = (
   { timeout }: { timeout: number } = { timeout: 500 }
 ) => {
   const fetchFn = async (operation: RequestParameters, variables: Variables) => {
+    console.log(operation.text, variables);
     await sleepAsync(timeout);
     const response = await graphql({
       schema: mockedSchema,
