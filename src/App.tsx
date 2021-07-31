@@ -10,12 +10,25 @@ import {
 } from "react-relay/hooks";
 import { createMockedRelayEnvironment } from "./env";
 import ComposerSummary from "./ComposerSummary";
-import { AppComposersQuery } from "__relay__/AppComposersQuery.graphql";
+import { AppComposersQuery, Country } from "__relay__/AppComposersQuery.graphql";
 import { AppCountriesQuery } from "__relay__/AppCountriesQuery.graphql";
 
-type CountriesEnum = AppComposersQuery["variables"]["country"];
+/*
+  Ideally single source of truth should be data specification
+  like Clojure Spec. GraphQL schema and all types can be derived from it.
 
-const relayEnv = createMockedRelayEnvironment();
+  `externalValue` comes from the user as a string and can be outside
+  of Country type. It is easy to do validation via data spec.
+
+  Say, we do not control GraphQL schema creation and thus do not have 
+  data spec. It is possible to create tool that will generate validation
+  code from GraphQL schema. It will be inherently weak compared to Clojure
+  Spec but it will suffice for validation of enum types like Country.
+
+*/
+function decodeCountry(externalValue: string): Country | undefined {
+  return (externalValue as Country) || undefined;
+}
 
 const ComposersQuery = graphql`
   query AppComposersQuery($country: Country) {
@@ -37,8 +50,7 @@ const CountriesQuery = graphql`
 `;
 
 function ComposersList(props: { queryRef: PreloadedQuery<AppComposersQuery> }) {
-  const data = usePreloadedQuery(ComposersQuery, props.queryRef);
-  const { composers } = data;
+  const { composers } = usePreloadedQuery(ComposersQuery, props.queryRef);
   return (
     <div>
       {composers
@@ -50,7 +62,7 @@ function ComposersList(props: { queryRef: PreloadedQuery<AppComposersQuery> }) {
   );
 }
 
-function CountrySelector(props: {
+function ComposersViewWithSelection(props: {
   countriesQueryRef: PreloadedQuery<AppCountriesQuery>;
   initialComposersQueryRef: PreloadedQuery<AppComposersQuery>;
 }) {
@@ -58,30 +70,39 @@ function CountrySelector(props: {
     ComposersQuery,
     props.initialComposersQueryRef
   );
-  const data = usePreloadedQuery(CountriesQuery, props.countriesQueryRef);
+  const { __type } = usePreloadedQuery(CountriesQuery, props.countriesQueryRef);
+  /*
+    __type.enumValues is typed as string array. If introspection query is
+    done correctly all these values are in fact of Country type. There is no need to
+    do decoding in runtime - more appropriate is to write single unit test.
+    And to please Typescript it's ok to do type casting.
+  */
+  const countries = (__type?.enumValues || []).map((v) => v.name) as Country[];
 
-  const { __type } = data;
+  const initiallySelectedValue =
+    props.initialComposersQueryRef.variables.country || undefined;
 
   return (
     <div>
-      {__type?.enumValues && (
+      {countries.length > 0 ? (
         <select
-          defaultValue={props.initialComposersQueryRef.variables.country || undefined}
+          defaultValue={initiallySelectedValue}
           onChange={(evt) => {
-            reloadComposersQuery({
-              country: (evt.target.value || undefined) as CountriesEnum,
-            });
+            reloadComposersQuery({ country: decodeCountry(evt.target.value) });
           }}
         >
           <option value={undefined}></option>
-          {__type.enumValues.map((value, j) => (
-            <option value={value.name} key={j}>
-              {value.name}
+          {countries.map((countryName, j) => (
+            <option value={countryName} key={j}>
+              {countryName}
             </option>
           ))}
         </select>
+      ) : (
+        <select disabled></select>
       )}
 
+      {/* XXX */}
       {composersQueryRef ? (
         <div>
           <React.Suspense fallback={"Loading..."}>
@@ -93,7 +114,10 @@ function CountrySelector(props: {
   );
 }
 
+const relayEnv = createMockedRelayEnvironment();
+
 const countriesQueryRef = loadQuery<AppCountriesQuery>(relayEnv, CountriesQuery, {});
+
 const initialComposersQueryRef = loadQuery<AppComposersQuery>(relayEnv, ComposersQuery, {
   country: "Russia",
 });
@@ -102,7 +126,7 @@ function Root() {
   return (
     <RelayEnvironmentProvider environment={relayEnv}>
       <React.Suspense fallback={"Loading..."}>
-        <CountrySelector
+        <ComposersViewWithSelection
           countriesQueryRef={countriesQueryRef}
           initialComposersQueryRef={initialComposersQueryRef}
         />
@@ -112,3 +136,11 @@ function Root() {
 }
 
 ReactDOM.render(<Root />, document.getElementById("app"));
+
+/**
+ * Problems:
+ * 1. Select element is reloaded every time new option is chosen.
+ *    Right thing to do is to load options on first render and
+ *    subsequently reload only list of composers. This can be
+ *    achieved by more clever use of suspense boundaries.
+ */
