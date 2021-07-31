@@ -83,24 +83,23 @@ const queryFields = {
   We have to have two different schemes one for Relay compiler another
   for graphql-tools.
 
-  Relay compiler demands explicit introspection fields on Query type:
-
+  Relay compiler demands explicit introspection fields on Query type
+  otherwise it will complain:
   ERROR:
-  - Unknown field '__type' on type 'Query'.
-    
+  - Unknown field '__type' on type 'Query'.    
     App.tsx:3:5
     2 |   query AppRootQuery($country: Country) {
     3 |     __type(name: "Country") {
       |     ^
     4 |       enumValues {
 
-  
-  But graphql-tools does not like that:
+  But graphql-tools does not like when __type field is explicitly 
+  included in type Query:
       Uncaught Error: Schema must contain uniquely named types 
       but contains multiple types named "__Schema".
     
  */
-export const QueryToPleaseRelayCompiler = new GraphQLObjectType({
+export const QueryForRelayCompiler = new GraphQLObjectType({
   name: "Query",
   fields: {
     ...queryFields,
