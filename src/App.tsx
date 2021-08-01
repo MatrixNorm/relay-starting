@@ -49,8 +49,8 @@ const CountriesQuery = graphql`
   }
 `;
 
-function ComposersList(props: { queryRef: PreloadedQuery<AppComposersQuery> }) {
-  const { composers } = usePreloadedQuery(ComposersQuery, props.queryRef);
+function ComposersList(props: { preloadedQuery: PreloadedQuery<AppComposersQuery> }) {
+  const { composers } = usePreloadedQuery(ComposersQuery, props.preloadedQuery);
   return (
     <div>
       {composers
@@ -63,14 +63,18 @@ function ComposersList(props: { queryRef: PreloadedQuery<AppComposersQuery> }) {
 }
 
 function ComposersViewWithSelection(props: {
-  countriesQueryRef: PreloadedQuery<AppCountriesQuery>;
-  initialComposersQueryRef: PreloadedQuery<AppComposersQuery>;
+  countriesPreloadedQuery: PreloadedQuery<AppCountriesQuery>;
+  composersInitialPreloadedQuery: PreloadedQuery<AppComposersQuery>;
 }) {
+  /* I don't like typing of `composersQueryRef`: it cannot be null (???)
+     because of non-null `props.initialComposersQueryRef`.
+  */
   const [composersQueryRef, reloadComposersQuery] = useQueryLoader(
     ComposersQuery,
-    props.initialComposersQueryRef
+    props.composersInitialPreloadedQuery
   );
-  const { __type } = usePreloadedQuery(CountriesQuery, props.countriesQueryRef);
+
+  const { __type } = usePreloadedQuery(CountriesQuery, props.countriesPreloadedQuery);
   /*
     __type.enumValues is typed as string array. If introspection query is
     done correctly all these values are in fact of Country type. There is no need to
@@ -79,14 +83,14 @@ function ComposersViewWithSelection(props: {
   */
   const countries = (__type?.enumValues || []).map((v) => v.name) as Country[];
 
-  const initiallySelectedValue =
-    props.initialComposersQueryRef.variables.country || undefined;
+  const initiallySelectedCountry =
+    props.composersInitialPreloadedQuery.variables.country || undefined;
 
   return (
     <div>
       {countries.length > 0 ? (
         <select
-          defaultValue={initiallySelectedValue}
+          defaultValue={initiallySelectedCountry}
           onChange={(evt) => {
             reloadComposersQuery({ country: decodeCountry(evt.target.value) });
           }}
@@ -102,33 +106,38 @@ function ComposersViewWithSelection(props: {
         <select disabled></select>
       )}
 
-      {/* XXX */}
-      {composersQueryRef ? (
-        <div>
-          <React.Suspense fallback={"Loading..."}>
-            <ComposersList queryRef={composersQueryRef} />
-          </React.Suspense>
-        </div>
-      ) : null}
+      {composersQueryRef && (
+        <React.Suspense fallback={"Loading..."}>
+          <ComposersList preloadedQuery={composersQueryRef} />
+        </React.Suspense>
+      )}
     </div>
   );
 }
 
 const relayEnv = createMockedRelayEnvironment();
 
-const countriesQueryRef = loadQuery<AppCountriesQuery>(relayEnv, CountriesQuery, {});
+const countriesPreloadedQuery = loadQuery<AppCountriesQuery>(
+  relayEnv,
+  CountriesQuery,
+  {}
+);
 
-const initialComposersQueryRef = loadQuery<AppComposersQuery>(relayEnv, ComposersQuery, {
-  country: "Russia",
-});
+const composersInitialPreloadedQuery = loadQuery<AppComposersQuery>(
+  relayEnv,
+  ComposersQuery,
+  {
+    country: "Russia",
+  }
+);
 
 function Root() {
   return (
     <RelayEnvironmentProvider environment={relayEnv}>
       <React.Suspense fallback={"Loading..."}>
         <ComposersViewWithSelection
-          countriesQueryRef={countriesQueryRef}
-          initialComposersQueryRef={initialComposersQueryRef}
+          countriesPreloadedQuery={countriesPreloadedQuery}
+          composersInitialPreloadedQuery={composersInitialPreloadedQuery}
         />
       </React.Suspense>
     </RelayEnvironmentProvider>
@@ -136,11 +145,3 @@ function Root() {
 }
 
 ReactDOM.render(<Root />, document.getElementById("app"));
-
-/**
- * Problems:
- * 1. Select element is reloaded every time new option is chosen.
- *    Right thing to do is to load options on first render and
- *    subsequently reload only list of composers. This can be
- *    achieved by more clever use of suspense boundaries.
- */
