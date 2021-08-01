@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "dev": "webpack serve",
+    "writeSchema": "babel-node ./scripts/writeSchema.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
