@@ -40,7 +40,7 @@ function WorkList({ works }: { works: ComposerSummary_composer["works"] }) {
           {works.map((work) => (
             <li key={work.id}>
               <span>{work.name}</span>
-              <span> {work.type}</span>
+              <span> {work.kind}</span>
             </li>
           ))}
         </ul>

@@ -60,7 +60,7 @@ const WorkKind = enumType("WorkKind", [
   "PIANO_ETUDE",
   "PIANO_SONATA",
   "STRING_QUARTET",
-  "SYMTHONY",
+  "SYMPHONY",
 ]);
 
 const Country = enumType("Country", [
@@ -84,7 +84,7 @@ const Query = new GraphQLObjectType({
   fields: queryFields,
 });
 
-export const QueryToPleaseRelayCompiler = new GraphQLObjectType({
+export const QueryForRelayCompiler = new GraphQLObjectType({
   name: "Query",
   fields: {
     ...queryFields,
