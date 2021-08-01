@@ -107,7 +107,7 @@ function ComposersViewWithSelection(props: {
       )}
 
       {composersQueryRef && (
-        <React.Suspense fallback={"Loading..."}>
+        <React.Suspense fallback={<div>"Loading..."</div>}>
           <ComposersList preloadedQuery={composersQueryRef} />
         </React.Suspense>
       )}
