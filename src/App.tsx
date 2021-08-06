@@ -9,12 +9,23 @@ import {
   PreloadedQuery,
 } from "react-relay/hooks";
 import ComposerSummary from "./ComposerSummary";
-import { AppComposersQuery } from "__relay__/AppComposersQuery.graphql";
+import { AppComposersQuery, Country } from "__relay__/AppComposersQuery.graphql";
 import { AppSelectorsQuery } from "__relay__/AppSelectorsQuery.graphql";
 import { IEnvironment } from "relay-runtime";
 
-type CountriesEnum = AppComposersQuery["variables"]["country"];
-type WorkKindEnum = AppComposersQuery["variables"]["workKind"];
+/*
+  Ideally single source of truth should be data specification
+  like Clojure Spec. GraphQL schema and all types can be derived from it.
+  `externalValue` comes from the user as a string and can be outside
+  of Country type. It is easy to do validation via data spec.
+  Say, we do not control GraphQL schema creation and thus do not have 
+  data spec. It is possible to create tool that will generate validation
+  code from GraphQL schema. It will be inherently weak compared to Clojure
+  Spec but it will suffice for validation of enum types like Country.
+*/
+function decodeCountry(externalValue: string): Country | undefined {
+  return (externalValue as Country) || undefined;
+}
 
 export const ComposersQuery = graphql`
   query AppComposersQuery($country: Country, $workKind: WorkKind) {
@@ -40,9 +51,8 @@ export const SelectorsQuery = graphql`
   }
 `;
 
-function ComposersList(props: { queryRef: PreloadedQuery<AppComposersQuery> }) {
-  const data = usePreloadedQuery(ComposersQuery, props.queryRef);
-  const { composers } = data;
+function ComposersList(props: { preloadedQuery: PreloadedQuery<AppComposersQuery> }) {
+  const { composers } = usePreloadedQuery(ComposersQuery, props.preloadedQuery);
   return (
     <div>
       {composers

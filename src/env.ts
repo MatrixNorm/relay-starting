@@ -1,4 +1,3 @@
-import { resolvePlugin } from "@babel/core";
 import { addMocksToSchema, createMockStore } from "@graphql-tools/mock";
 import * as gql from "graphql";
 import * as rr from "relay-runtime";
@@ -12,7 +11,7 @@ const store = createMockStore({
   schema,
   mocks: {
     Query: () => ({
-      composers: [...new Array(5)],
+      composers: [...new Array(3)],
     }),
     Composer: () => ({
       name: () => {
@@ -20,14 +19,14 @@ const store = createMockStore({
           "Beethoven",
           "Mussorgsky",
           "Prokofiev",
-          "Rachmaninov",
+          "Rachmaninoff",
           "Rimsky-Korsakov",
           "Scriabin",
           "Tchaikovsky",
         ];
         return goats[Math.floor(Math.random() * goats.length)];
       },
-      works: [...new Array(4)],
+      works: [...new Array(3)],
     }),
     Work: () => ({
       name: `Op. ${Math.floor(Math.random() * 100) + 1}`,
@@ -41,26 +40,31 @@ const mockedSchema = addMocksToSchema({
 });
 
 /**
- * Environment that serializes every request with equal
- * `timeout` delay between them.
+ * Environment that serializes responses.
+ * Each response takes equal `timeout` to simulate network delay.
  */
 export const createMockedRelayEnvironment = (
   { timeout }: { timeout: number } = { timeout: 500 }
 ) => {
-  let latestPendingResponse: Promise<any> = Promise.resolve();
-  // XXX
-  async function getNextResponse(request: rr.RequestParameters, variables: rr.Variables) {
-    await latestPendingResponse;
-    await sleepPromise(timeout);
-    return await gql.graphql(mockedSchema, request.text || "", {}, {}, variables);
-  }
+  let __latestResponsePromise: Promise<any> = Promise.resolve();
 
   const network = rr.Network.create(
     async (request: rr.RequestParameters, variables: rr.Variables) => {
-      //console.log(request.text, variables);
-      const nextResponse = getNextResponse(request, variables);
-      latestPendingResponse = nextResponse;
-      return nextResponse as Promise<rr.GraphQLResponse>;
+      // closure captures value of __latestResponsePromise
+      async function createNextResponsePromise() {
+        await __latestResponsePromise;
+        await sleepPromise(timeout);
+        return gql.graphqlSync({
+          schema: mockedSchema,
+          source: request.text || "",
+          variableValues: variables,
+        });
+      }
+
+      __latestResponsePromise = createNextResponsePromise();
+      // Typescript type for GraphQLResponse is wrong because it does not permit
+      // null value.
+      return __latestResponsePromise as Promise<rr.GraphQLResponse>;
     }
   );
   const store = new rr.Store(new rr.RecordSource());
@@ -73,36 +77,36 @@ export const createMockedRelayEnvironment = (
 type PendingRequest = {
   request: rr.RequestParameters;
   variables: rr.Variables;
-  resolver: any;
+  resolverFn: (data: any) => void;
 };
 
 export const createManuallyControlledRelayEnvironment: () => [
   rr.Environment,
   () => PendingRequest[]
 ] = () => {
-  let pendingRequests: PendingRequest[] = [];
-
-  function getPendingRequests(): PendingRequest[] {
-    return pendingRequests;
-  }
+  let __pendingResponses: PendingRequest[] = [];
 
   const network = rr.Network.create(
     (request: rr.RequestParameters, variables: rr.Variables) => {
-      //console.log(request.text, variables);
-      let resolver = null;
+      let resolverFn = (_: rr.PayloadData) => {};
 
       const responsePromise = new Promise((resolve) => {
-        resolver = (data: any) => {
+        resolverFn = (data: rr.PayloadData) => {
           resolve({ data });
-          const j = pendingRequests.findIndex((pending) => pending.request === request);
-          pendingRequests.splice(j, 1);
+          const j = __pendingResponses.findIndex(
+            (pending) => pending.request.id === request.id
+          );
+          __pendingResponses.splice(j, 1);
         };
       });
-      pendingRequests.push({ request, variables, resolver });
+
+      __pendingResponses.push({ request, variables, resolverFn });
+
       return responsePromise as Promise<rr.GraphQLResponse>;
     }
   );
+
   const store = new rr.Store(new rr.RecordSource());
   const environment = new rr.Environment({ network, store });
-  return [environment, getPendingRequests];
+  return [environment, () => __pendingResponses];
 };
