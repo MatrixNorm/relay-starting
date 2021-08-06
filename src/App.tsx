@@ -66,6 +66,9 @@ function ComposersViewWithSelection(props: {
   countriesPreloadedQuery: PreloadedQuery<AppCountriesQuery>;
   composersInitialPreloadedQuery: PreloadedQuery<AppComposersQuery>;
 }) {
+  const [selectedCountry, setSelectedCountry] = React.useState(
+    props.composersInitialPreloadedQuery.variables.country || undefined
+  );
   /* I don't like typing of `composersQueryRef`: it cannot be null (???)
      because of non-null `props.initialComposersQueryRef`.
   */
@@ -83,16 +86,15 @@ function ComposersViewWithSelection(props: {
   */
   const countries = (__type?.enumValues || []).map((v) => v.name) as Country[];
 
-  const initiallySelectedCountry =
-    props.composersInitialPreloadedQuery.variables.country || undefined;
-
   return (
     <div>
       {countries.length > 0 ? (
         <select
-          defaultValue={initiallySelectedCountry}
+          value={selectedCountry}
           onChange={(evt) => {
-            reloadComposersQuery({ country: decodeCountry(evt.target.value) });
+            const country = decodeCountry(evt.target.value);
+            setSelectedCountry(country);
+            reloadComposersQuery({ country });
           }}
         >
           <option value={undefined}></option>
