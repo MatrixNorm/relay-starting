@@ -34,9 +34,26 @@ const store = createMockStore({
   },
 });
 
+window.mockStore = store;
+
 const mockedSchema = addMocksToSchema({
   schema,
   store,
+  resolvers: (store) => ({
+    Query: {
+      composers: (_, { country }) => {
+        const composers = store.get(
+          "Query",
+          "ROOT",
+          "composers",
+          country !== undefined ? { country } : undefined
+        );
+        console.log(composers);
+        console.log(store.set("Composer", composers[0].$ref.key, "name", "XXX"));
+        return composers;
+      },
+    },
+  }),
 });
 
 /**
@@ -46,10 +63,12 @@ const mockedSchema = addMocksToSchema({
 export const createMockedRelayEnvironment = (
   { timeout }: { timeout: number } = { timeout: 500 }
 ) => {
+  // we are starting with resolved promise
   let __latestResponsePromise: Promise<any> = Promise.resolve();
 
   const network = rr.Network.create(
     async (request: rr.RequestParameters, variables: rr.Variables) => {
+      console.log(request.text, variables);
       // closure captures value of __latestResponsePromise
       async function createNextResponsePromise() {
         await __latestResponsePromise;
@@ -80,6 +99,7 @@ type PendingRequest = {
   resolverFn: (data: any) => void;
 };
 
+// This environment is useful for testing.
 export const createManuallyControlledRelayEnvironment: () => [
   rr.Environment,
   () => PendingRequest[]
