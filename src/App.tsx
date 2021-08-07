@@ -1,17 +1,15 @@
 import * as React from "react";
 import { useState } from "react";
 import graphql from "babel-plugin-relay/macro";
-import {
-  loadQuery,
-  RelayEnvironmentProvider,
-  usePreloadedQuery,
-  useQueryLoader,
-  PreloadedQuery,
-} from "react-relay/hooks";
+import { usePreloadedQuery, useQueryLoader, PreloadedQuery } from "react-relay/hooks";
 import ComposerSummary from "./ComposerSummary";
-import { AppComposersQuery, Country } from "__relay__/AppComposersQuery.graphql";
+// types
+import {
+  AppComposersQuery,
+  Country,
+  WorkKind,
+} from "__relay__/AppComposersQuery.graphql";
 import { AppSelectorsQuery } from "__relay__/AppSelectorsQuery.graphql";
-import { IEnvironment } from "relay-runtime";
 
 /*
   Ideally single source of truth should be data specification
@@ -25,6 +23,10 @@ import { IEnvironment } from "relay-runtime";
 */
 function decodeCountry(externalValue: string): Country | undefined {
   return (externalValue as Country) || undefined;
+}
+
+function decodeWorkKind(externalValue: string): WorkKind | undefined {
+  return (externalValue as WorkKind) || undefined;
 }
 
 export const ComposersQuery = graphql`
@@ -64,90 +66,87 @@ function ComposersList(props: { preloadedQuery: PreloadedQuery<AppComposersQuery
   );
 }
 
-function App(props: {
-  selectorsQueryRef: PreloadedQuery<AppSelectorsQuery>;
-  initialComposersQueryRef: PreloadedQuery<AppComposersQuery>;
+export function App(props: {
+  selectorsPreloadedQuery: PreloadedQuery<AppSelectorsQuery>;
+  composersInitialPreloadedQuery: PreloadedQuery<AppComposersQuery>;
 }) {
-  const [state, setState] = useState({
-    country: props.initialComposersQueryRef.variables.country,
-    workKind: props.initialComposersQueryRef.variables.workKind,
+  const [state, setState] = useState(() => {
+    const vs = props.composersInitialPreloadedQuery.variables;
+    return {
+      country: vs.country || undefined,
+      workKind: vs.workKind || undefined,
+    };
   });
+  // I don't like typing of `composersQueryRef`: it cannot be null (???)
+  //   because of non-null `props.initialComposersQueryRef`.
   const [composersQueryRef, reloadComposersQuery] = useQueryLoader(
     ComposersQuery,
-    props.initialComposersQueryRef
+    props.composersInitialPreloadedQuery
   );
-  debugger;
-  const data = usePreloadedQuery(SelectorsQuery, props.selectorsQueryRef);
 
-  const { countries, workKinds } = data;
+  const enums = usePreloadedQuery(SelectorsQuery, props.selectorsPreloadedQuery);
+  /*
+    __type.enumValues is typed as string array. If introspection query is
+    done correctly all these values are in fact of Country type. There is no need to
+    do decoding in runtime - more appropriate is to write single unit test.
+    And to please Typescript it's ok to do type casting.
+  */
+  const countries = (enums.countries?.enumValues || []).map((v) => v.name) as Country[];
+  const workKinds = (enums.workKinds?.enumValues || []).map((v) => v.name) as WorkKind[];
 
   return (
     <div>
-      {countries?.enumValues && (
+      {countries.length > 0 ? (
         <select
           value={state.country || undefined}
           onChange={(evt) => {
-            let nextCountry = (evt.target.value || undefined) as CountriesEnum;
-            let nextState = { ...state, country: nextCountry };
+            let country = decodeCountry(evt.target.value);
+            let nextState = { ...state, country };
             setState(nextState);
             reloadComposersQuery(nextState);
           }}
           test-id="App-country-selector"
         >
           <option value={undefined}></option>
-          {countries.enumValues.map((value, j) => (
-            <option value={value.name} key={j}>
-              {value.name}
+          {countries.map((name, j) => (
+            <option value={name} key={j}>
+              {name}
             </option>
           ))}
         </select>
+      ) : (
+        <select disabled></select>
       )}
 
-      {workKinds?.enumValues && (
+      {workKinds.length > 0 ? (
         <select
           value={state.workKind || undefined}
           onChange={(evt) => {
-            let nextWorkKind = (evt.target.value || undefined) as WorkKindEnum;
-            let nextState = { ...state, workKind: nextWorkKind };
+            let workKind = decodeWorkKind(evt.target.value);
+            let nextState = { ...state, workKind };
             setState(nextState);
             reloadComposersQuery(nextState);
           }}
           test-id="App-workKind-selector"
         >
           <option value={undefined}></option>
-          {workKinds.enumValues.map((value, j) => (
-            <option value={value.name} key={j}>
-              {value.name}
+          {workKinds.map((name, j) => (
+            <option value={name} key={j}>
+              {name}
             </option>
           ))}
         </select>
+      ) : (
+        <select disabled></select>
       )}
 
-      {composersQueryRef ? (
+      {composersQueryRef && (
         <div>
           <React.Suspense fallback={"Loading..."}>
-            <ComposersList queryRef={composersQueryRef} />
+            <ComposersList preloadedQuery={composersQueryRef} />
           </React.Suspense>
         </div>
-      ) : null}
+      )}
     </div>
-  );
-}
-
-export function Root({ env }: { env: IEnvironment }) {
-  const selectorsQueryRef = loadQuery<AppSelectorsQuery>(env, SelectorsQuery, {});
-  const initialComposersQueryRef = loadQuery<AppComposersQuery>(env, ComposersQuery, {
-    country: null,
-    workKind: null,
-  });
-  return (
-    <RelayEnvironmentProvider environment={env}>
-      <React.Suspense fallback={"Loading..."}>
-        <App
-          selectorsQueryRef={selectorsQueryRef}
-          initialComposersQueryRef={initialComposersQueryRef}
-        />
-      </React.Suspense>
-    </RelayEnvironmentProvider>
   );
 }
