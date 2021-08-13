@@ -34,27 +34,53 @@ const store = createMockStore({
   },
 });
 
-window.mockStore = store;
-
 const mockedSchema = addMocksToSchema({
   schema,
   store,
   resolvers: (store) => ({
     Query: {
       composers: (_, { country }) => {
-        const composers = store.get(
+        const composers: any = store.get(
           "Query",
           "ROOT",
           "composers",
           country !== undefined ? { country } : undefined
         );
-        console.log(composers);
-        console.log(store.set("Composer", composers[0].$ref.key, "name", "XXX"));
+
+        if (country !== undefined) {
+          for (let ref of composers) {
+            store.set("Composer", ref.$ref.key, "country", country);
+          }
+        }
+
         return composers;
+      },
+    },
+    Composer: {
+      works: (composer, { kind }) => {
+        console.log(composer, kind);
+        const works: any = store.get(
+          "Composer",
+          composer.$ref.key,
+          "works",
+          kind !== undefined ? { kind } : undefined
+        );
+        //console.log(works);
+        if (kind !== undefined) {
+          for (let ref of works) {
+            store.set("Work", ref.$ref.key, "kind", kind);
+          }
+        }
+
+        return works;
       },
     },
   }),
 });
+
+function compress(obj: any) {
+  return Object.fromEntries(Object.entries(obj).filter(([k, v]) => v !== undefined));
+}
 
 /**
  * Environment that serializes responses.
@@ -68,7 +94,9 @@ export const createMockedRelayEnvironment = (
 
   const network = rr.Network.create(
     async (request: rr.RequestParameters, variables: rr.Variables) => {
-      console.log(request.text, variables);
+      console.log(1, variables);
+      //variables = compress(variables);
+      console.log(2, variables);
       // closure captures value of __latestResponsePromise
       async function createNextResponsePromise() {
         await __latestResponsePromise;

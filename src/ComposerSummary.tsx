@@ -12,6 +12,7 @@ const fragmentRef = graphql`
   @argumentDefinitions(workKind: { type: "WorkKind" }) {
     id
     name
+    country
     works(kind: $workKind) {
       id
       name
@@ -27,7 +28,9 @@ export default function ComposerSummary(props: {
   const data = useFragment(fragmentRef, props.composer);
   return (
     <div>
-      <h4>{data.name}</h4>
+      <h4>
+        {data.name} <i>{data.country}</i>
+      </h4>
       <WorkList works={data.works} />
     </div>
   );

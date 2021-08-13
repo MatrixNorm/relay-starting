@@ -37,6 +37,7 @@ query AppComposersQuery(
 fragment ComposerSummary_composer_15hxLD on Composer {
   id
   name
+  country
   works(kind: $workKind) {
     id
     name
@@ -132,6 +133,13 @@ return {
           (v3/*: any*/),
           {
             "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "country",
+            "storageKey": null
+          },
+          {
+            "alias": null,
             "args": [
               {
                 "kind": "Variable",
@@ -169,12 +177,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "2a33f8befa8d7ee91f000ce46dc455cc",
+    "cacheID": "e37571e28c070b6c78be62f251e59046",
     "id": null,
     "metadata": {},
     "name": "AppComposersQuery",
     "operationKind": "query",
-    "text": "query AppComposersQuery(\n  $country: Country\n  $workKind: WorkKind\n) {\n  composers(country: $country) {\n    id\n    ...ComposerSummary_composer_15hxLD\n  }\n}\n\nfragment ComposerSummary_composer_15hxLD on Composer {\n  id\n  name\n  works(kind: $workKind) {\n    id\n    name\n    kind\n    yearOfPublication\n  }\n}\n"
+    "text": "query AppComposersQuery(\n  $country: Country\n  $workKind: WorkKind\n) {\n  composers(country: $country) {\n    id\n    ...ComposerSummary_composer_15hxLD\n  }\n}\n\nfragment ComposerSummary_composer_15hxLD on Composer {\n  id\n  name\n  country\n  works(kind: $workKind) {\n    id\n    name\n    kind\n    yearOfPublication\n  }\n}\n"
   }
 };
 })();
