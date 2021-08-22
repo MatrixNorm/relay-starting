@@ -66,6 +66,17 @@ function ComposersList(props: { preloadedQuery: PreloadedQuery<AppComposersQuery
   );
 }
 
+function removeUndefinedValues(obj: any) {
+  let result: any = {};
+  for (let k in obj) {
+    let v = obj[k];
+    if (v !== undefined) {
+      result[k] = v;
+    }
+  }
+  return result;
+}
+
 export function App(props: {
   selectorsPreloadedQuery: PreloadedQuery<AppSelectorsQuery>;
   composersInitialPreloadedQuery: PreloadedQuery<AppComposersQuery>;
@@ -124,6 +135,7 @@ export function App(props: {
           onChange={(evt) => {
             let workKind = decodeWorkKind(evt.target.value);
             let nextState = { ...state, workKind };
+            //nextState = removeUndefinedValues(nextState)
             setState(nextState);
             reloadComposersQuery(nextState);
           }}

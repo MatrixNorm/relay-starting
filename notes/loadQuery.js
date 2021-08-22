@@ -17,7 +17,7 @@ function loadQuery(environment, preloadableRequest, variables) {
     const shouldFetch =
       fetchPolicy !== "store-or-network" ||
       environment.check(operation).status !== "available";
-
+    
     if (shouldFetch) {
       executeDeduped(operation, () => {
         // N.B. Since we have the operation synchronously available here,

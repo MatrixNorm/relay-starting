@@ -3,6 +3,10 @@ import * as gql from "graphql";
 import * as rr from "relay-runtime";
 import schema from "./schema";
 
+function isNil(x: any): boolean {
+  return x === undefined || x === null;
+}
+
 function sleepPromise(timeout: number) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
 }
@@ -11,7 +15,7 @@ const store = createMockStore({
   schema,
   mocks: {
     Query: () => ({
-      composers: [...new Array(3)],
+      composers: [...new Array(2)],
     }),
     Composer: () => ({
       name: () => {
@@ -26,7 +30,7 @@ const store = createMockStore({
         ];
         return goats[Math.floor(Math.random() * goats.length)];
       },
-      works: [...new Array(3)],
+      works: [...new Array(2)],
     }),
     Work: () => ({
       name: `Op. ${Math.floor(Math.random() * 100) + 1}`,
@@ -40,51 +44,52 @@ const mockedSchema = addMocksToSchema({
   resolvers: (store) => ({
     Query: {
       composers: (_, { country }) => {
-        const composers: any = store.get(
+        // IF gql request has variables like {} (that is
+        // 'country' key is missing) then here 'country'
+        // will have value of 'undefined'. But if variables
+        // are like {country: undefined} then value will
+        // be 'null'.
+        const composerRefs: any = store.get(
           "Query",
           "ROOT",
           "composers",
-          country !== undefined ? { country } : undefined
+          !isNil(country) ? { country } : undefined
         );
 
-        if (country !== undefined) {
-          for (let ref of composers) {
+        if (!isNil(country)) {
+          for (let ref of composerRefs) {
             store.set("Composer", ref.$ref.key, "country", country);
           }
         }
 
-        return composers;
+        return composerRefs;
       },
     },
     Composer: {
       works: (composer, { kind }) => {
-        console.log(composer, kind);
-        const works: any = store.get(
+        const workRefs: any = store.get(
           "Composer",
           composer.$ref.key,
           "works",
-          kind !== undefined ? { kind } : undefined
+          !isNil(kind) ? { kind } : undefined
         );
-        //console.log(works);
-        if (kind !== undefined) {
-          for (let ref of works) {
+
+        if (!isNil(kind)) {
+          for (let ref of workRefs) {
             store.set("Work", ref.$ref.key, "kind", kind);
           }
         }
 
-        return works;
+        return workRefs;
       },
     },
   }),
 });
 
-function compress(obj: any) {
-  return Object.fromEntries(Object.entries(obj).filter(([k, v]) => v !== undefined));
-}
-
 /**
  * Environment that serializes responses.
- * Each response takes equal `timeout` to simulate network delay.
+ * Each response waits until previous response is done.
+ * Every response takes equal `timeout` to simulate network delay.
  */
 export const createMockedRelayEnvironment = (
   { timeout }: { timeout: number } = { timeout: 500 }
@@ -94,9 +99,6 @@ export const createMockedRelayEnvironment = (
 
   const network = rr.Network.create(
     async (request: rr.RequestParameters, variables: rr.Variables) => {
-      console.log(1, variables);
-      //variables = compress(variables);
-      console.log(2, variables);
       // closure captures value of __latestResponsePromise
       async function createNextResponsePromise() {
         await __latestResponsePromise;
@@ -109,17 +111,92 @@ export const createMockedRelayEnvironment = (
       }
 
       __latestResponsePromise = createNextResponsePromise();
-      // Typescript type for GraphQLResponse is wrong because it does not permit
-      // null value.
+      // Typescript type for GraphQLResponse is wrong because
+      // null value it does not permit.
       return __latestResponsePromise as Promise<rr.GraphQLResponse>;
     }
   );
   const store = new rr.Store(new rr.RecordSource());
   const environment = new rr.Environment({ network, store });
   // @ts-ignore
-  window.__relayStore = environment.getStore();
+  window.__relayStore = environment.getStore()._recordSource._records;
   return environment;
 };
+
+/**
+ * XXX
+ *
+ */
+
+class RequestSerializer {
+  queue: any[];
+
+  constructor() {
+    this.queue = [];
+  }
+
+  add(responseFn: () => Promise<any>) {
+    let green;
+
+    if (this.queue.length === 0) {
+      green = Promise.resolve();
+      this.queue.push(() => {});
+    } else {
+      let resolveGreen;
+      green = new Promise((resolve) => {
+        resolveGreen = resolve;
+      });
+      this.queue.push(resolveGreen);
+    }
+
+    const response = (async function () {
+      await green;
+      return await responseFn();
+    })();
+    response.finally(() => this.remove());
+    return response;
+  }
+
+  remove() {
+    this.queue.shift();
+    if (this.queue.length > 0) {
+      const resolverFn = this.queue[0];
+      resolverFn();
+    }
+  }
+}
+
+export const createMockedRelayEnvironment2 = (
+  { timeout }: { timeout: number } = { timeout: 500 }
+) => {
+  const requestSerializer = new RequestSerializer();
+
+  const fetchFn = (
+    request: rr.RequestParameters,
+    variables: rr.Variables
+  ): Promise<rr.GraphQLResponse> => {
+    return requestSerializer.add(async function () {
+      await sleepPromise(timeout);
+      return gql.graphqlSync({
+        schema: mockedSchema,
+        source: request.text || "",
+        variableValues: variables,
+      });
+    }) as Promise<rr.GraphQLResponse>;
+  };
+
+  const network = rr.Network.create(fetchFn);
+  const store = new rr.Store(new rr.RecordSource());
+  const environment = new rr.Environment({ network, store });
+  // @ts-ignore
+  window.__relayStore = environment.getStore()._recordSource._records;
+  return environment;
+};
+
+/**
+ * This environment is useful for testing.
+ *
+ */
 
 type PendingRequest = {
   request: rr.RequestParameters;
@@ -127,7 +204,6 @@ type PendingRequest = {
   resolverFn: (data: any) => void;
 };
 
-// This environment is useful for testing.
 export const createManuallyControlledRelayEnvironment: () => [
   rr.Environment,
   () => PendingRequest[]
