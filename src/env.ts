@@ -1,3 +1,4 @@
+import { resolvePlugin } from "@babel/core";
 import { addMocksToSchema, createMockStore } from "@graphql-tools/mock";
 import * as gql from "graphql";
 import * as rr from "relay-runtime";
@@ -128,7 +129,7 @@ export const createMockedRelayEnvironment = (
  *
  */
 
-class RequestSerializer {
+export class RequestSerializer {
   queue: any[];
 
   constructor() {
@@ -136,32 +137,32 @@ class RequestSerializer {
   }
 
   add(responseFn: () => Promise<any>) {
-    let green;
+    let greenLight;
 
     if (this.queue.length === 0) {
-      green = Promise.resolve();
+      greenLight = Promise.resolve();
       this.queue.push(() => {});
     } else {
-      let resolveGreen;
-      green = new Promise((resolve) => {
-        resolveGreen = resolve;
+      let resolveGreenLight;
+      greenLight = new Promise((resolve) => {
+        resolveGreenLight = resolve;
       });
-      this.queue.push(resolveGreen);
+      this.queue.push(resolveGreenLight);
     }
 
     const response = (async function () {
-      await green;
+      await greenLight;
       return await responseFn();
     })();
-    response.finally(() => this.remove());
+    response.finally(() => this._remove());
     return response;
   }
 
-  remove() {
+  private _remove() {
     this.queue.shift();
     if (this.queue.length > 0) {
-      const resolverFn = this.queue[0];
-      resolverFn();
+      const resolveGreenLight = this.queue[0];
+      resolveGreenLight();
     }
   }
 }
