@@ -1,15 +1,15 @@
 import { RequestSerializer } from "../env";
 import * as tu from "../testUtils";
 
-describe("****", () => {
-  test("t_1", async () => {
+describe("RequestSerializer", () => {
+  test("t_1 first promise is unchanged", async () => {
     const rs = new RequestSerializer();
     const p = Promise.resolve();
     const resp = rs.add(p);
     expect(resp === p).toBe(true);
   });
 
-  test("t_2", async () => {
+  test("t_2 second promise always resolves after first", async () => {
     const rs = new RequestSerializer();
     let resolveP1: any;
     const p1 = new Promise((resolve) => {
