@@ -1,22 +1,27 @@
 import { RequestSerializer } from "../env";
 import * as tu from "../testUtils";
 
-const eventLoopNextTick = () => new Promise((resolve) => setTimeout(resolve, 0));
-
 describe("****", () => {
   test("t_1", async () => {
     const rs = new RequestSerializer();
-    const resp = rs.add(() => Promise.resolve());
-    expect(tu.isPending(resp)).toEqual(true);
-    await eventLoopNextTick();
-    expect(tu.isResolved(resp)).toEqual(true);
+    const p = Promise.resolve();
+    const resp = rs.add(p);
+    expect(resp === p).toBe(true);
   });
 
-  // test("t_2", async () => {
-  //   const rs = new RequestSerializer();
-  //   const respFn1 = async () => {};
-  //   const resp = rs.add(() => Promise.resolve());
-  //   await eventLoopNextTick();
-  //   expect(tu.isResolved(resp)).toEqual(true);
-  // });
+  test("t_2", async () => {
+    const rs = new RequestSerializer();
+    let resolveP1: any;
+    const p1 = new Promise((resolve) => {
+      resolveP1 = resolve;
+    });
+    const p2 = Promise.resolve();
+
+    rs.add(p1);
+    const resp2 = rs.add(p2);
+    expect(tu.isPromisePending(resp2)).toBe(true);
+    resolveP1();
+    await tu.eventLoopNextTick();
+    expect(tu.isPromiseResolved(resp2)).toBe(true);
+  });
 });

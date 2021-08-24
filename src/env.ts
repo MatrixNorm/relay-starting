@@ -3,14 +3,7 @@ import { addMocksToSchema, createMockStore } from "@graphql-tools/mock";
 import * as gql from "graphql";
 import * as rr from "relay-runtime";
 import schema from "./schema";
-
-function isNil(x: any): boolean {
-  return x === undefined || x === null;
-}
-
-function sleepPromise(timeout: number) {
-  return new Promise((resolve) => setTimeout(resolve, timeout));
-}
+import * as ut from "./utils";
 
 const store = createMockStore({
   schema,
@@ -54,10 +47,10 @@ const mockedSchema = addMocksToSchema({
           "Query",
           "ROOT",
           "composers",
-          !isNil(country) ? { country } : undefined
+          !ut.isNil(country) ? { country } : undefined
         );
 
-        if (!isNil(country)) {
+        if (!ut.isNil(country)) {
           for (let ref of composerRefs) {
             store.set("Composer", ref.$ref.key, "country", country);
           }
@@ -72,10 +65,10 @@ const mockedSchema = addMocksToSchema({
           "Composer",
           composer.$ref.key,
           "works",
-          !isNil(kind) ? { kind } : undefined
+          !ut.isNil(kind) ? { kind } : undefined
         );
 
-        if (!isNil(kind)) {
+        if (!ut.isNil(kind)) {
           for (let ref of workRefs) {
             store.set("Work", ref.$ref.key, "kind", kind);
           }
@@ -103,7 +96,7 @@ export const createMockedRelayEnvironment = (
       // closure captures value of __latestResponsePromise
       async function createNextResponsePromise() {
         await __latestResponsePromise;
-        await sleepPromise(timeout);
+        await ut.sleepPromise(timeout);
         return gql.graphqlSync({
           schema: mockedSchema,
           source: request.text || "",
@@ -130,40 +123,26 @@ export const createMockedRelayEnvironment = (
  */
 
 export class RequestSerializer {
-  queue: any[];
+  private latestPromise: Promise<any> | null;
 
   constructor() {
-    this.queue = [];
+    this.latestPromise = null;
   }
 
-  add(responseFn: () => Promise<any>) {
-    let greenLight;
-
-    if (this.queue.length === 0) {
-      greenLight = Promise.resolve();
-      this.queue.push(() => {});
+  add(response: Promise<any> | (() => Promise<any>)) {
+    if (typeof response === "function") {
+      response = response();
+    }
+    if (this.latestPromise === null) {
+      this.latestPromise = response;
     } else {
-      let resolveGreenLight;
-      greenLight = new Promise((resolve) => {
-        resolveGreenLight = resolve;
-      });
-      this.queue.push(resolveGreenLight);
+      const serializedResponseFn = async () => {
+        await this.latestPromise;
+        return await response;
+      };
+      this.latestPromise = serializedResponseFn();
     }
-
-    const response = (async function () {
-      await greenLight;
-      return await responseFn();
-    })();
-    response.finally(() => this._remove());
-    return response;
-  }
-
-  private _remove() {
-    this.queue.shift();
-    if (this.queue.length > 0) {
-      const resolveGreenLight = this.queue[0];
-      resolveGreenLight();
-    }
+    return this.latestPromise;
   }
 }
 
@@ -177,7 +156,7 @@ export const createMockedRelayEnvironment2 = (
     variables: rr.Variables
   ): Promise<rr.GraphQLResponse> => {
     return requestSerializer.add(async function () {
-      await sleepPromise(timeout);
+      await ut.sleepPromise(timeout);
       return gql.graphqlSync({
         schema: mockedSchema,
         source: request.text || "",
