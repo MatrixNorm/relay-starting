@@ -196,11 +196,20 @@ export const createManuallyControlledRelayEnvironment: () => [
       const responsePromise = new Promise((resolve) => {
         resolverFn = (data: rr.PayloadData) => {
           resolve({ data });
-          const j = __pendingResponses.findIndex(
-            (pending) => pending.request.id === request.id
-          );
-          __pendingResponses.splice(j, 1);
         };
+      });
+
+      responsePromise.finally(() => {
+        const j = __pendingResponses.findIndex((pending) => {
+          if (request.id) {
+            return pending.request.id === request.id;
+          }
+          if (request.cacheID) {
+            return pending.request.cacheID === request.cacheID;
+          }
+          return pending.request.text === request.text && pending.variables === variables;
+        });
+        __pendingResponses.splice(j, 1);
       });
 
       __pendingResponses.push({ request, variables, resolverFn });
