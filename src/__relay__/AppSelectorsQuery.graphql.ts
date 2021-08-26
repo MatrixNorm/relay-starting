@@ -5,12 +5,12 @@
 import { ConcreteRequest } from "relay-runtime";
 export type AppSelectorsQueryVariables = {};
 export type AppSelectorsQueryResponse = {
-    readonly countries: {
+    readonly country: {
         readonly enumValues: ReadonlyArray<{
             readonly name: string;
         }> | null;
     } | null;
-    readonly workKinds: {
+    readonly workKind: {
         readonly enumValues: ReadonlyArray<{
             readonly name: string;
         }> | null;
@@ -25,12 +25,12 @@ export type AppSelectorsQuery = {
 
 /*
 query AppSelectorsQuery {
-  countries: __type(name: "Country") {
+  country: __type(name: "Country") {
     enumValues {
       name
     }
   }
-  workKinds: __type(name: "WorkKind") {
+  workKind: __type(name: "WorkKind") {
     enumValues {
       name
     }
@@ -61,7 +61,7 @@ var v0 = [
 ],
 v1 = [
   {
-    "alias": "countries",
+    "alias": "country",
     "args": [
       {
         "kind": "Literal",
@@ -77,7 +77,7 @@ v1 = [
     "storageKey": "__type(name:\"Country\")"
   },
   {
-    "alias": "workKinds",
+    "alias": "workKind",
     "args": [
       {
         "kind": "Literal",
@@ -111,14 +111,14 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "d962e315cd4cd6013f62f119472ecf2a",
+    "cacheID": "71164b242e052fc8abf7ed2e89cca9cc",
     "id": null,
     "metadata": {},
     "name": "AppSelectorsQuery",
     "operationKind": "query",
-    "text": "query AppSelectorsQuery {\n  countries: __type(name: \"Country\") {\n    enumValues {\n      name\n    }\n  }\n  workKinds: __type(name: \"WorkKind\") {\n    enumValues {\n      name\n    }\n  }\n}\n"
+    "text": "query AppSelectorsQuery {\n  country: __type(name: \"Country\") {\n    enumValues {\n      name\n    }\n  }\n  workKind: __type(name: \"WorkKind\") {\n    enumValues {\n      name\n    }\n  }\n}\n"
   }
 };
 })();
-(node as any).hash = 'a9f0d04b4280ed485c674efe2abbac12';
+(node as any).hash = 'd1271a727b3ec29788e409ba9868bee1';
 export default node;

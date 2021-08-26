@@ -28,13 +28,14 @@ import { AppSelectorsQuery } from "__relay__/AppSelectorsQuery.graphql";
   code from GraphQL schema. It will be inherently weak compared to Clojure
   Spec but it will suffice for validation of enum types like Country.
 */
-function decodeCountry(externalValue: string): Country | undefined {
-  return (externalValue as Country) || undefined;
-}
-
-function decodeWorkKind(externalValue: string): WorkKind | undefined {
-  return (externalValue as WorkKind) || undefined;
-}
+const decode = {
+  country(externalValue: string): Country | undefined {
+    return (externalValue as Country) || undefined;
+  },
+  workKind(externalValue: string): WorkKind | undefined {
+    return (externalValue as WorkKind) || undefined;
+  },
+};
 
 export const ComposersQuery = graphql`
   query AppComposersQuery($country: Country, $workKind: WorkKind) {
@@ -47,12 +48,12 @@ export const ComposersQuery = graphql`
 
 export const SelectorsQuery = graphql`
   query AppSelectorsQuery {
-    countries: __type(name: "Country") {
+    country: __type(name: "Country") {
       enumValues {
         name
       }
     }
-    workKinds: __type(name: "WorkKind") {
+    workKind: __type(name: "WorkKind") {
       enumValues {
         name
       }
@@ -77,13 +78,6 @@ export function App(props: {
   selectorsPreloadedQuery: PreloadedQuery<AppSelectorsQuery>;
   composersInitialPreloadedQuery: PreloadedQuery<AppComposersQuery>;
 }) {
-  const [state, setState] = useState(() => {
-    const vs = props.composersInitialPreloadedQuery.variables;
-    return {
-      country: vs.country || undefined,
-      workKind: vs.workKind || undefined,
-    };
-  });
   // don't like typing of `composersQueryRef`: it cannot be null (???)
   // because of non-null `props.initialComposersQueryRef`.
   const [composersQueryRef, reloadComposersQuery] = useQueryLoader(
@@ -98,54 +92,49 @@ export function App(props: {
     do decoding in runtime - more appropriate is to write single unit test.
     And to please Typescript it's ok to do type casting.
   */
-  const countries = (enums.countries?.enumValues || []).map((v) => v.name) as Country[];
-  const workKinds = (enums.workKinds?.enumValues || []).map((v) => v.name) as WorkKind[];
+  const selectors = {
+    country: (enums.country?.enumValues || []).map((v) => v.name) as Country[],
+    workKind: (enums.workKind?.enumValues || []).map((v) => v.name) as WorkKind[],
+  };
+
+  const [activeSelectors, setActiveSelectors] = useState(() => {
+    const vs = props.composersInitialPreloadedQuery.variables;
+    return {
+      country: vs.country || undefined,
+      workKind: vs.workKind || undefined,
+    };
+  });
+
+  function selectorElement(name: keyof AppSelectorsQuery["response"]) {
+    if (selectors[name].length > 0) {
+      return (
+        <select
+          value={activeSelectors[name] || undefined}
+          onChange={(evt) => {
+            let value = decode[name](evt.target.value);
+            let nextActiveSelectors = { ...activeSelectors, [name]: value };
+            setActiveSelectors(nextActiveSelectors);
+            reloadComposersQuery(nextActiveSelectors);
+          }}
+          test-id={`App-${name}-selector`}
+        >
+          <option value={undefined}></option>
+          {selectors[name].map((name, j) => (
+            <option value={name} key={j}>
+              {name}
+            </option>
+          ))}
+        </select>
+      );
+    } else {
+      return <select disabled test-id={`App-${name}-selector`}></select>;
+    }
+  }
 
   return (
     <div>
-      {countries.length > 0 ? (
-        <select
-          value={state.country || undefined}
-          onChange={(evt) => {
-            let country = decodeCountry(evt.target.value);
-            let nextState = { ...state, country };
-            setState(nextState);
-            reloadComposersQuery(nextState);
-          }}
-          test-id="App-country-selector"
-        >
-          <option value={undefined}></option>
-          {countries.map((name, j) => (
-            <option value={name} key={j}>
-              {name}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <select disabled></select>
-      )}
-
-      {workKinds.length > 0 ? (
-        <select
-          value={state.workKind || undefined}
-          onChange={(evt) => {
-            let workKind = decodeWorkKind(evt.target.value);
-            let nextState = { ...state, workKind };
-            setState(nextState);
-            reloadComposersQuery(nextState);
-          }}
-          test-id="App-workKind-selector"
-        >
-          <option value={undefined}></option>
-          {workKinds.map((name, j) => (
-            <option value={name} key={j}>
-              {name}
-            </option>
-          ))}
-        </select>
-      ) : (
-        <select disabled></select>
-      )}
+      {selectorElement("country")}
+      {selectorElement("workKind")}
 
       {composersQueryRef && (
         <div>
