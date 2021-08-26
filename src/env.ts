@@ -183,10 +183,7 @@ type PendingRequest = {
   resolverFn: (data: any) => void;
 };
 
-export const createManuallyControlledRelayEnvironment: () => [
-  rr.Environment,
-  () => PendingRequest[]
-] = () => {
+export const createManuallyControlledRelayEnvironment = () => {
   let __pendingResponses: PendingRequest[] = [];
 
   const network = rr.Network.create(
@@ -219,6 +216,16 @@ export const createManuallyControlledRelayEnvironment: () => [
   );
 
   const store = new rr.Store(new rr.RecordSource());
-  const environment = new rr.Environment({ network, store });
-  return [environment, () => __pendingResponses];
+  const relayEnv = new rr.Environment({ network, store });
+  return {
+    relayEnv,
+    pending: {
+      getAll() {
+        return __pendingResponses;
+      },
+      getByName(name: string) {
+        return __pendingResponses.find((pending) => pending.request.name === name);
+      },
+    },
+  };
 };

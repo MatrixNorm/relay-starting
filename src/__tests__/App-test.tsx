@@ -6,18 +6,29 @@ import { createManuallyControlledRelayEnvironment } from "../env";
 
 describe("xxx", () => {
   test("t_1 manuallyControlledRelayEnvironment", async () => {
-    const [relayEnv, getPendingRequests] = createManuallyControlledRelayEnvironment();
+    const { relayEnv, pending } = createManuallyControlledRelayEnvironment();
     const Root = createRootComponent({ relayEnv });
     const renderer = tr.create(<Root />);
-    //console.log(JSON.stringify(renderer.toJSON(), null, 2));
-    const pendingRequests = getPendingRequests();
-    console.log(pendingRequests);
-    // pendingRequests[0].resolverFn({
-    //   countries: { enumValues: [{ name: "Russia" }, { name: "Austria" }] },
-    //   workKinds: { enumValues: [{ name: "Piano sonata" }, { name: "Symphony" }] },
-    // });
-    // await tu.eventLoopNextTick();
-    // console.log(JSON.stringify(renderer.toJSON(), null, 2));
+    console.log(JSON.stringify(renderer.toJSON(), null, 2));
+
+    const composersReq = pending.getByName("AppComposersQuery");
+    composersReq?.resolverFn({
+      composers: [{ id: "1", name: "Prokofiev", country: "Russia", works: null }],
+    });
+    await tu.eventLoopNextTick();
+    console.log(pending.getAll());
+    console.log(JSON.stringify(renderer.toJSON(), null, 2));
+
+    const selectorsReq = pending.getByName("AppSelectorsQuery");
+    selectorsReq?.resolverFn({
+      countries: { enumValues: [{ name: "Russia" }, { name: "Austria" }] },
+      workKinds: { enumValues: [{ name: "Piano sonata" }, { name: "Symphony" }] },
+    });
+    // why need two calls to see loaded state?
+    await tu.eventLoopNextTick();
+    await tu.eventLoopNextTick();
+    console.log(pending.getAll());
+    console.log(JSON.stringify(renderer.toJSON(), null, 2));
   });
 
   // test("t_2 using relay-test-utils mock environment", () => {
