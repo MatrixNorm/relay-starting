@@ -9,23 +9,15 @@ describe("xxx", () => {
     const { relayEnv, pending } = createManuallyControlledRelayEnvironment();
     const Root = createRootComponent({ relayEnv });
     const renderer = tr.create(<Root />);
-    console.log(JSON.stringify(renderer.toJSON(), null, 2));
-
-    const composersReq = pending.getByName("AppComposersQuery");
-    composersReq?.resolverFn({
-      composers: [{ id: "1", name: "Prokofiev", country: "Russia", works: null }],
-    });
-    await tu.eventLoopNextTick();
     console.log(pending.getAll());
     console.log(JSON.stringify(renderer.toJSON(), null, 2));
 
-    const selectorsReq = pending.getByName("AppSelectorsQuery");
-    selectorsReq?.resolverFn({
-      countries: { enumValues: [{ name: "Russia" }, { name: "Austria" }] },
-      workKinds: { enumValues: [{ name: "Piano sonata" }, { name: "Symphony" }] },
+    const initialReq = pending.getByName("AppInitialQuery");
+    initialReq?.resolverFn({
+      composers: [{ id: "1", name: "Prokofiev", country: "Russia", works: null }],
+      country: { enumValues: [{ name: "Russia" }, { name: "Austria" }] },
+      workKind: { enumValues: [{ name: "Piano sonata" }, { name: "Symphony" }] },
     });
-    // why need two calls to see loaded state?
-    await tu.eventLoopNextTick();
     await tu.eventLoopNextTick();
     console.log(pending.getAll());
     console.log(JSON.stringify(renderer.toJSON(), null, 2));
