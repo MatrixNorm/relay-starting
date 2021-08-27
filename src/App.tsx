@@ -16,7 +16,7 @@ import {
   Country,
   WorkKind,
 } from "__relay__/AppComposersQuery.graphql";
-import { AppSelectorsQuery } from "__relay__/AppSelectorsQuery.graphql";
+import { AppInitialQuery } from "__relay__/AppInitialQuery.graphql";
 
 /*
   Ideally single source of truth should be data specification
@@ -37,17 +37,8 @@ const decode = {
   },
 };
 
-export const ComposersQuery = graphql`
-  query AppComposersQuery($country: Country, $workKind: WorkKind) {
-    composers(country: $country) {
-      id
-      ...ComposerSummary_composer @arguments(workKind: $workKind)
-    }
-  }
-`;
-
-export const SelectorsQuery = graphql`
-  query AppSelectorsQuery {
+export const InitialQuery = graphql`
+  query AppInitialQuery($country: Country, $workKind: WorkKind) {
     country: __type(name: "Country") {
       enumValues {
         name
@@ -58,11 +49,27 @@ export const SelectorsQuery = graphql`
         name
       }
     }
+    composers(country: $country) {
+      id
+      ...ComposerSummary_composer @arguments(workKind: $workKind)
+    }
   }
 `;
 
-function ComposersList(props: { preloadedQuery: PreloadedQuery<AppComposersQuery> }) {
-  const { composers } = usePreloadedQuery(ComposersQuery, props.preloadedQuery);
+export const ComposersQuery = graphql`
+  query AppComposersQuery($country: Country, $workKind: WorkKind) {
+    composers(country: $country) {
+      id
+      ...ComposerSummary_composer @arguments(workKind: $workKind)
+    }
+  }
+`;
+
+function ComposersList({
+  composers,
+}: {
+  composers: AppComposersQuery["response"]["composers"];
+}) {
   return (
     <div>
       {composers
@@ -74,18 +81,21 @@ function ComposersList(props: { preloadedQuery: PreloadedQuery<AppComposersQuery
   );
 }
 
-export function App(props: {
-  selectorsPreloadedQuery: PreloadedQuery<AppSelectorsQuery>;
-  composersInitialPreloadedQuery: PreloadedQuery<AppComposersQuery>;
+function ComposersListWrapper(props: {
+  preloadedQuery: PreloadedQuery<AppComposersQuery>;
 }) {
-  // don't like typing of `composersQueryRef`: it cannot be null (???)
-  // because of non-null `props.initialComposersQueryRef`.
-  const [composersQueryRef, reloadComposersQuery] = useQueryLoader(
-    ComposersQuery,
-    props.composersInitialPreloadedQuery
-  );
+  const data = usePreloadedQuery(ComposersQuery, props.preloadedQuery);
+  return <ComposersList composers={data.composers} />;
+}
 
-  const enums = usePreloadedQuery(SelectorsQuery, props.selectorsPreloadedQuery);
+export function App(props: { initialPreloadedQuery: PreloadedQuery<AppInitialQuery> }) {
+  const [composersQueryRef, reloadComposersQuery] =
+    useQueryLoader<AppComposersQuery>(ComposersQuery);
+
+  const { composers, country, workKind } = usePreloadedQuery(
+    InitialQuery,
+    props.initialPreloadedQuery
+  );
   /*
     __type.enumValues is typed as string array. If introspection query is
     done correctly all these values are in fact of Country type. There is no need to
@@ -93,19 +103,19 @@ export function App(props: {
     And to please Typescript it's ok to do type casting.
   */
   const selectors = {
-    country: (enums.country?.enumValues || []).map((v) => v.name) as Country[],
-    workKind: (enums.workKind?.enumValues || []).map((v) => v.name) as WorkKind[],
+    country: (country?.enumValues || []).map((v) => v.name) as Country[],
+    workKind: (workKind?.enumValues || []).map((v) => v.name) as WorkKind[],
   };
 
   const [activeSelectors, setActiveSelectors] = useState(() => {
-    const vs = props.composersInitialPreloadedQuery.variables;
+    const vs = props.initialPreloadedQuery.variables;
     return {
       country: vs.country || undefined,
       workKind: vs.workKind || undefined,
     };
   });
 
-  function selectorElement(name: keyof AppSelectorsQuery["response"]) {
+  function selectorElement(name: keyof typeof selectors) {
     if (selectors[name].length > 0) {
       return (
         <select
@@ -136,36 +146,26 @@ export function App(props: {
       {selectorElement("country")}
       {selectorElement("workKind")}
 
-      {composersQueryRef && (
+      {composersQueryRef ? (
         <div>
           <React.Suspense fallback={"Loading..."}>
-            <ComposersList preloadedQuery={composersQueryRef} />
+            <ComposersListWrapper preloadedQuery={composersQueryRef} />
           </React.Suspense>
         </div>
+      ) : (
+        <ComposersList composers={composers} />
       )}
     </div>
   );
 }
 
 export function createRootComponent({ relayEnv }: { relayEnv: IEnvironment }) {
-  const selectorsPreloadedQuery = loadQuery<AppSelectorsQuery>(
-    relayEnv,
-    SelectorsQuery,
-    {}
-  );
-  const composersInitialPreloadedQuery = loadQuery<AppComposersQuery>(
-    relayEnv,
-    ComposersQuery,
-    {}
-  );
+  const initialPreloadedQuery = loadQuery<AppInitialQuery>(relayEnv, InitialQuery, {});
   return function Root() {
     return (
       <RelayEnvironmentProvider environment={relayEnv}>
         <React.Suspense fallback={"Loading..."}>
-          <App
-            selectorsPreloadedQuery={selectorsPreloadedQuery}
-            composersInitialPreloadedQuery={composersInitialPreloadedQuery}
-          />
+          <App initialPreloadedQuery={initialPreloadedQuery} />
         </React.Suspense>
       </RelayEnvironmentProvider>
     );
