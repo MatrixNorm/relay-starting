@@ -16,7 +16,11 @@ import {
   Country,
   WorkKind,
 } from "__relay__/AppComposersQuery.graphql";
-import { AppInitialQuery } from "__relay__/AppInitialQuery.graphql";
+import {
+  AppInitialQuery,
+  AppInitialQueryVariables,
+} from "__relay__/AppInitialQuery.graphql";
+import { Denull } from "./typeUtils";
 
 /*
   Ideally single source of truth should be data specification
@@ -107,24 +111,45 @@ export function App(props: { initialPreloadedQuery: PreloadedQuery<AppInitialQue
     workKind: (workKind?.enumValues || []).map((v) => v.name) as WorkKind[],
   };
 
-  const [activeSelectors, setActiveSelectors] = useState(() => {
+  const __initFn = () => {
     const vs = props.initialPreloadedQuery.variables;
     return {
       country: vs.country || undefined,
       workKind: vs.workKind || undefined,
     };
-  });
+  };
 
-  function selectorElement(name: keyof typeof selectors) {
+  const [appliedSelectors, setAppliedSelectors] =
+    useState<Denull<AppInitialQueryVariables>>(__initFn);
+
+  const [draftSelectors, setDraftSelectors] =
+    useState<Denull<AppInitialQueryVariables>>(__initFn);
+
+  function isDraftDiffers() {
+    return JSON.stringify(appliedSelectors) !== JSON.stringify(draftSelectors);
+  }
+
+  function handleApply() {
+    if (isDraftDiffers()) {
+      setAppliedSelectors(draftSelectors);
+      reloadComposersQuery(draftSelectors);
+    }
+  }
+
+  function handleCancel() {
+    if (isDraftDiffers()) {
+      setDraftSelectors(appliedSelectors);
+    }
+  }
+
+  function selectorElement(name: keyof AppInitialQueryVariables) {
     if (selectors[name].length > 0) {
       return (
         <select
-          value={activeSelectors[name] || undefined}
+          value={draftSelectors[name] || undefined}
           onChange={(evt) => {
             let value = decode[name](evt.target.value);
-            let nextActiveSelectors = { ...activeSelectors, [name]: value };
-            setActiveSelectors(nextActiveSelectors);
-            reloadComposersQuery(nextActiveSelectors);
+            setDraftSelectors((prev) => ({ ...prev, [name]: value }));
           }}
           test-id={`App-${name}-selector`}
         >
@@ -145,6 +170,13 @@ export function App(props: { initialPreloadedQuery: PreloadedQuery<AppInitialQue
     <div>
       {selectorElement("country")}
       {selectorElement("workKind")}
+
+      {isDraftDiffers() && (
+        <div>
+          <button onClick={handleApply}>apply</button>
+          <button onClick={handleCancel}>cancel</button>
+        </div>
+      )}
 
       {composersQueryRef ? (
         <div>
