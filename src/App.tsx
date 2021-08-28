@@ -41,6 +41,10 @@ const decode = {
   },
 };
 
+const encode = (internalValue: Country | WorkKind | undefined): string => {
+  return internalValue || "";
+};
+
 export const InitialQuery = graphql`
   query AppInitialQuery($country: Country, $workKind: WorkKind) {
     country: __type(name: "Country") {
@@ -146,14 +150,14 @@ export function App(props: { initialPreloadedQuery: PreloadedQuery<AppInitialQue
     if (selectors[name].length > 0) {
       return (
         <select
-          value={draftSelectors[name] || undefined}
+          value={encode(draftSelectors[name])}
           onChange={(evt) => {
             let value = decode[name](evt.target.value);
             setDraftSelectors((prev) => ({ ...prev, [name]: value }));
           }}
           test-id={`App-${name}-selector`}
         >
-          <option value={undefined}></option>
+          <option value=""></option>
           {selectors[name].map((name, j) => (
             <option value={name} key={j}>
               {name}
