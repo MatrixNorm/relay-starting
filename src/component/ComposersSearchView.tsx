@@ -96,7 +96,9 @@ function ComposersListWrapper(props: {
   return <ComposersList composers={data.composers} />;
 }
 
-export function App(props: { initialPreloadedQuery: PreloadedQuery<AppInitialQuery> }) {
+export function ComposersSearchViewInner(props: {
+  initialPreloadedQuery: PreloadedQuery<AppInitialQuery>;
+}) {
   const [composersQueryRef, reloadComposersQuery] =
     useQueryLoader<AppComposersQuery>(ComposersQuery);
 
@@ -198,15 +200,12 @@ export function App(props: { initialPreloadedQuery: PreloadedQuery<AppInitialQue
   );
 }
 
-export function createRootComponent({ relayEnv }: { relayEnv: IEnvironment }) {
-  const initialPreloadedQuery = loadQuery<AppInitialQuery>(relayEnv, InitialQuery, {});
-  return function Root() {
-    return (
-      <RelayEnvironmentProvider environment={relayEnv}>
-        <React.Suspense fallback={"Loading..."}>
-          <App initialPreloadedQuery={initialPreloadedQuery} />
-        </React.Suspense>
-      </RelayEnvironmentProvider>
-    );
-  };
+export function ComposersSearchView(props: {
+  initialPreloadedQuery: PreloadedQuery<AppInitialQuery>;
+}) {
+  return (
+    <React.Suspense fallback={"Loading..."}>
+      <ComposersSearchViewInner initialPreloadedQuery={props.initialPreloadedQuery} />
+    </React.Suspense>
+  );
 }
