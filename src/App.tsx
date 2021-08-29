@@ -130,6 +130,7 @@ export function App(props: { initialPreloadedQuery: PreloadedQuery<AppInitialQue
     useState<Denull<AppInitialQueryVariables>>(__initFn);
 
   function isDraftDiffers() {
+    // Would be so much better with persistent data structures.
     return JSON.stringify(appliedSelectors) !== JSON.stringify(draftSelectors);
   }
 
@@ -152,7 +153,9 @@ export function App(props: { initialPreloadedQuery: PreloadedQuery<AppInitialQue
         <select
           value={encode(draftSelectors[name])}
           onChange={(evt) => {
-            let value = decode[name](evt.target.value);
+            // observe how useless is type information here
+            let decoder = decode[name];
+            let value = decoder(evt.target.value);
             setDraftSelectors((prev) => ({ ...prev, [name]: value }));
           }}
           test-id={`App-${name}-selector`}
