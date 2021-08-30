@@ -1,26 +1,19 @@
 import * as React from "react";
 import { useState } from "react";
 import graphql from "babel-plugin-relay/macro";
-import {
-  loadQuery,
-  RelayEnvironmentProvider,
-  usePreloadedQuery,
-  useQueryLoader,
-  PreloadedQuery,
-} from "react-relay/hooks";
+import { usePreloadedQuery, useQueryLoader, PreloadedQuery } from "react-relay/hooks";
 import ComposerSummary from "./ComposerSummary";
 // types
-import { IEnvironment } from "relay-runtime";
 import {
-  AppComposersQuery,
+  ComposersBrowseViewQuery as $ComposersQuery,
   Country,
   WorkKind,
-} from "__relay__/AppComposersQuery.graphql";
+} from "__relay__/ComposersBrowseViewQuery.graphql";
 import {
-  AppInitialQuery,
-  AppInitialQueryVariables,
-} from "__relay__/AppInitialQuery.graphql";
-import { Denull } from "./typeUtils";
+  ComposersBrowseViewInitialQuery as $InitialQuery,
+  ComposersBrowseViewInitialQueryVariables as $InitialQueryVars,
+} from "__relay__/ComposersBrowseViewInitialQuery.graphql";
+import { Denull } from "../typeUtils";
 
 /*
   Ideally single source of truth should be data specification
@@ -46,7 +39,7 @@ const encode = (internalValue: Country | WorkKind | undefined): string => {
 };
 
 export const InitialQuery = graphql`
-  query AppInitialQuery($country: Country, $workKind: WorkKind) {
+  query ComposersBrowseViewInitialQuery($country: Country, $workKind: WorkKind) {
     country: __type(name: "Country") {
       enumValues {
         name
@@ -65,7 +58,7 @@ export const InitialQuery = graphql`
 `;
 
 export const ComposersQuery = graphql`
-  query AppComposersQuery($country: Country, $workKind: WorkKind) {
+  query ComposersBrowseViewQuery($country: Country, $workKind: WorkKind) {
     composers(country: $country) {
       id
       ...ComposerSummary_composer @arguments(workKind: $workKind)
@@ -76,7 +69,7 @@ export const ComposersQuery = graphql`
 function ComposersList({
   composers,
 }: {
-  composers: AppComposersQuery["response"]["composers"];
+  composers: $ComposersQuery["response"]["composers"];
 }) {
   return (
     <div>
@@ -90,17 +83,15 @@ function ComposersList({
 }
 
 function ComposersListWrapper(props: {
-  preloadedQuery: PreloadedQuery<AppComposersQuery>;
+  preloadedQuery: PreloadedQuery<$ComposersQuery>;
 }) {
   const data = usePreloadedQuery(ComposersQuery, props.preloadedQuery);
   return <ComposersList composers={data.composers} />;
 }
 
-export function ComposersSearchViewInner(props: {
-  initialPreloadedQuery: PreloadedQuery<AppInitialQuery>;
-}) {
+export function Inner__(props: { initialPreloadedQuery: PreloadedQuery<$InitialQuery> }) {
   const [composersQueryRef, reloadComposersQuery] =
-    useQueryLoader<AppComposersQuery>(ComposersQuery);
+    useQueryLoader<$ComposersQuery>(ComposersQuery);
 
   const { composers, country, workKind } = usePreloadedQuery(
     InitialQuery,
@@ -126,10 +117,10 @@ export function ComposersSearchViewInner(props: {
   };
 
   const [appliedSelectors, setAppliedSelectors] =
-    useState<Denull<AppInitialQueryVariables>>(__initFn);
+    useState<Denull<$InitialQueryVars>>(__initFn);
 
   const [draftSelectors, setDraftSelectors] =
-    useState<Denull<AppInitialQueryVariables>>(__initFn);
+    useState<Denull<$InitialQueryVars>>(__initFn);
 
   function isDraftDiffers() {
     // Would be so much better with persistent data structures.
@@ -149,7 +140,7 @@ export function ComposersSearchViewInner(props: {
     }
   }
 
-  function selectorElement(name: keyof AppInitialQueryVariables) {
+  function selectorElement(name: keyof $InitialQueryVars) {
     if (selectors[name].length > 0) {
       return (
         <select
@@ -200,12 +191,12 @@ export function ComposersSearchViewInner(props: {
   );
 }
 
-export function ComposersSearchView(props: {
-  initialPreloadedQuery: PreloadedQuery<AppInitialQuery>;
+export function ComposersBrowseView(props: {
+  initialPreloadedQuery: PreloadedQuery<$InitialQuery>;
 }) {
   return (
     <React.Suspense fallback={"Loading..."}>
-      <ComposersSearchViewInner initialPreloadedQuery={props.initialPreloadedQuery} />
+      <Inner__ initialPreloadedQuery={props.initialPreloadedQuery} />
     </React.Suspense>
   );
 }

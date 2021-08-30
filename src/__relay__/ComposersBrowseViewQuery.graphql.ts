@@ -6,25 +6,25 @@ import { ConcreteRequest } from "relay-runtime";
 import { FragmentRefs } from "relay-runtime";
 export type Country = "Austria" | "France" | "Germany" | "Italy" | "Poland" | "Russia" | "%future added value";
 export type WorkKind = "BALLET_SUITE" | "OPERA" | "PIANO_CONCERTO" | "PIANO_ETUDE" | "PIANO_PRELUDE" | "PIANO_SONATA" | "STRING_QUARTET" | "SYMPHONY" | "%future added value";
-export type AppComposersQueryVariables = {
+export type ComposersBrowseViewQueryVariables = {
     country?: Country | null;
     workKind?: WorkKind | null;
 };
-export type AppComposersQueryResponse = {
+export type ComposersBrowseViewQueryResponse = {
     readonly composers: ReadonlyArray<{
         readonly id: string;
         readonly " $fragmentRefs": FragmentRefs<"ComposerSummary_composer">;
     }> | null;
 };
-export type AppComposersQuery = {
-    readonly response: AppComposersQueryResponse;
-    readonly variables: AppComposersQueryVariables;
+export type ComposersBrowseViewQuery = {
+    readonly response: ComposersBrowseViewQueryResponse;
+    readonly variables: ComposersBrowseViewQueryVariables;
 };
 
 
 
 /*
-query AppComposersQuery(
+query ComposersBrowseViewQuery(
   $country: Country
   $workKind: WorkKind
 ) {
@@ -86,7 +86,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "AppComposersQuery",
+    "name": "ComposersBrowseViewQuery",
     "selections": [
       {
         "alias": null,
@@ -119,7 +119,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "AppComposersQuery",
+    "name": "ComposersBrowseViewQuery",
     "selections": [
       {
         "alias": null,
@@ -177,14 +177,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "e37571e28c070b6c78be62f251e59046",
+    "cacheID": "58d1264fcbbf195bda4cf5776f180e4b",
     "id": null,
     "metadata": {},
-    "name": "AppComposersQuery",
+    "name": "ComposersBrowseViewQuery",
     "operationKind": "query",
-    "text": "query AppComposersQuery(\n  $country: Country\n  $workKind: WorkKind\n) {\n  composers(country: $country) {\n    id\n    ...ComposerSummary_composer_15hxLD\n  }\n}\n\nfragment ComposerSummary_composer_15hxLD on Composer {\n  id\n  name\n  country\n  works(kind: $workKind) {\n    id\n    name\n    kind\n    yearOfPublication\n  }\n}\n"
+    "text": "query ComposersBrowseViewQuery(\n  $country: Country\n  $workKind: WorkKind\n) {\n  composers(country: $country) {\n    id\n    ...ComposerSummary_composer_15hxLD\n  }\n}\n\nfragment ComposerSummary_composer_15hxLD on Composer {\n  id\n  name\n  country\n  works(kind: $workKind) {\n    id\n    name\n    kind\n    yearOfPublication\n  }\n}\n"
   }
 };
 })();
-(node as any).hash = 'df2c981ff56b5dd4893ef8b8b8340309';
+(node as any).hash = '812ad2dad79da193d609e2e7a30073ab';
 export default node;

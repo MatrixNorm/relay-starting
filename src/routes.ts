@@ -1,10 +1,10 @@
 import { loadQuery } from "react-relay/hooks";
-import Root from "./component/Root";
+import Header from "./component/Header";
 import HomeView from "./component/HomeView";
 import {
-  ComposersSearchView,
-  InitialQuery as ComposersSearchViewInitialQuery,
-} from "./component/ComposersSearchView";
+  ComposersBrowseView,
+  InitialQuery as ComposersBrowseViewInitialQuery,
+} from "./component/ComposersBrowseView";
 import {
   ComposerDetailedView,
   Query as ComposerDetailedViewQuery,
@@ -14,7 +14,7 @@ import { IEnvironment } from "relay-runtime";
 
 export const getRoutes = (relayEnv: IEnvironment) => [
   {
-    component: Root,
+    component: Header,
     prepare: () => {},
     routes: [
       {
@@ -25,10 +25,10 @@ export const getRoutes = (relayEnv: IEnvironment) => [
       },
       {
         path: "/composers",
-        component: ComposersSearchView,
+        component: ComposersBrowseView,
         preload: () => {
           return {
-            query: loadQuery(relayEnv, ComposersSearchViewInitialQuery, {
+            query: loadQuery(relayEnv, ComposersBrowseViewInitialQuery, {
               country: null,
               workKind: null,
             }),

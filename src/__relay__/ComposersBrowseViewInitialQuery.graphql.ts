@@ -6,11 +6,11 @@ import { ConcreteRequest } from "relay-runtime";
 import { FragmentRefs } from "relay-runtime";
 export type Country = "Austria" | "France" | "Germany" | "Italy" | "Poland" | "Russia" | "%future added value";
 export type WorkKind = "BALLET_SUITE" | "OPERA" | "PIANO_CONCERTO" | "PIANO_ETUDE" | "PIANO_PRELUDE" | "PIANO_SONATA" | "STRING_QUARTET" | "SYMPHONY" | "%future added value";
-export type AppInitialQueryVariables = {
+export type ComposersBrowseViewInitialQueryVariables = {
     country?: Country | null;
     workKind?: WorkKind | null;
 };
-export type AppInitialQueryResponse = {
+export type ComposersBrowseViewInitialQueryResponse = {
     readonly country: {
         readonly enumValues: ReadonlyArray<{
             readonly name: string;
@@ -26,15 +26,15 @@ export type AppInitialQueryResponse = {
         readonly " $fragmentRefs": FragmentRefs<"ComposerSummary_composer">;
     }> | null;
 };
-export type AppInitialQuery = {
-    readonly response: AppInitialQueryResponse;
-    readonly variables: AppInitialQueryVariables;
+export type ComposersBrowseViewInitialQuery = {
+    readonly response: ComposersBrowseViewInitialQueryResponse;
+    readonly variables: ComposersBrowseViewInitialQueryVariables;
 };
 
 
 
 /*
-query AppInitialQuery(
+query ComposersBrowseViewInitialQuery(
   $country: Country
   $workKind: WorkKind
 ) {
@@ -152,7 +152,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "AppInitialQuery",
+    "name": "ComposersBrowseViewInitialQuery",
     "selections": [
       (v3/*: any*/),
       (v4/*: any*/),
@@ -187,7 +187,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "AppInitialQuery",
+    "name": "ComposersBrowseViewInitialQuery",
     "selections": [
       (v3/*: any*/),
       (v4/*: any*/),
@@ -247,14 +247,14 @@ return {
     ]
   },
   "params": {
-    "cacheID": "8af1053953946da948439171895085cc",
+    "cacheID": "70e98841a33ce718da60cccef695f551",
     "id": null,
     "metadata": {},
-    "name": "AppInitialQuery",
+    "name": "ComposersBrowseViewInitialQuery",
     "operationKind": "query",
-    "text": "query AppInitialQuery(\n  $country: Country\n  $workKind: WorkKind\n) {\n  country: __type(name: \"Country\") {\n    enumValues {\n      name\n    }\n  }\n  workKind: __type(name: \"WorkKind\") {\n    enumValues {\n      name\n    }\n  }\n  composers(country: $country) {\n    id\n    ...ComposerSummary_composer_15hxLD\n  }\n}\n\nfragment ComposerSummary_composer_15hxLD on Composer {\n  id\n  name\n  country\n  works(kind: $workKind) {\n    id\n    name\n    kind\n    yearOfPublication\n  }\n}\n"
+    "text": "query ComposersBrowseViewInitialQuery(\n  $country: Country\n  $workKind: WorkKind\n) {\n  country: __type(name: \"Country\") {\n    enumValues {\n      name\n    }\n  }\n  workKind: __type(name: \"WorkKind\") {\n    enumValues {\n      name\n    }\n  }\n  composers(country: $country) {\n    id\n    ...ComposerSummary_composer_15hxLD\n  }\n}\n\nfragment ComposerSummary_composer_15hxLD on Composer {\n  id\n  name\n  country\n  works(kind: $workKind) {\n    id\n    name\n    kind\n    yearOfPublication\n  }\n}\n"
   }
 };
 })();
-(node as any).hash = '3dcb2a7b97752dbb6faf1e43d9642d04';
+(node as any).hash = '8ae33da95a5096f21ad827701dd32ef6';
 export default node;
