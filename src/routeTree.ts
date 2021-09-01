@@ -1,4 +1,4 @@
-import { loadQuery } from "react-relay/hooks";
+import { loadQuery, PreloadedQuery } from "react-relay/hooks";
 import Header from "./component/Header";
 import HomeView from "./component/HomeView";
 import {
@@ -10,18 +10,26 @@ import {
   Query as ComposerDetailedViewQuery,
 } from "./component/ComposerDetailedView";
 // types
-import { IEnvironment } from "relay-runtime";
+import type { IEnvironment } from "relay-runtime";
 
-export const getRoutes = (relayEnv: IEnvironment) => [
+type RouteTreeNode = {
+  path?: string | undefined;
+  exact?: boolean;
+  component: any;
+  preload?: (params: any) => { query: PreloadedQuery<any> } | undefined;
+  routes?: RouteTree | undefined;
+};
+
+type RouteTree = RouteTreeNode[];
+
+export const getRoutes = (relayEnv: IEnvironment): RouteTree => [
   {
     component: Header,
-    prepare: () => {},
     routes: [
       {
         path: "/",
         exact: true,
         component: HomeView,
-        preload: () => {},
       },
       {
         path: "/composers",

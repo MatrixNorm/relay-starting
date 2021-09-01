@@ -1,7 +1,7 @@
 import * as React from "react";
 import Link from "../routing/Link";
 
-export default function Header(props: { children: any }) {
+export default function Header(props: { children?: any }) {
   return (
     <div>
       <nav>
