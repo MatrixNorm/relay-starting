@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Suspense, useContext, useEffect, useState } from "react";
 import RoutingContext from "./RoutingContext";
+import type { PreloadedMatch } from "./Router";
 
 /**
  * The `component` property from the route entry is a Resource, which may or may not be ready.
@@ -13,9 +14,9 @@ import RoutingContext from "./RoutingContext";
  * our ErrorBoundary/Suspense components, so we have to ensure that the suspend/error happens
  * in a child component.
  */
-function RouteComponent(props: any) {
-  const { component, children, routeData, prepared } = props;
-  return React.createElement(component, { routeData, prepared, children });
+function RouteComponent(props: PreloadedMatch & { children?: any }) {
+  const { component, children, routeData, preloaded } = props;
+  return React.createElement(component, { routeData, preloaded, children });
 }
 
 /**
@@ -23,9 +24,7 @@ function RouteComponent(props: any) {
  * that entry.
  */
 export default function RouterRenderer() {
-  // Access the router
   const router = useContext(RoutingContext);
-
   const [routeEntry, setRouteEntry] = useState(router.get());
 
   useEffect(() => {
@@ -65,32 +64,18 @@ export default function RouterRenderer() {
   // component, and iteratively construct parent components w the previous
   // value as the child of the next one:
 
-  const reversedItems: any[] = [].concat(routeEntry.entries).reverse();
+  const reversedItems = [...routeEntry.preloadedMatches].reverse();
+  //const reversedItems: any[] = [].concat(routeEntry.preloadedMatches).reverse();
   const firstItem = reversedItems[0];
 
   // the bottom-most component is special since it will have no children
   // (though we could probably just pass null children to it)
-  let routeComponent = (
-    <RouteComponent
-      component={firstItem.component}
-      prepared={firstItem.prepared}
-      routeData={firstItem.routeData}
-    />
-  );
+  let routeComponent = <RouteComponent {...firstItem} />;
 
   for (let ii = 1; ii < reversedItems.length; ii++) {
     const nextItem = reversedItems[ii];
-    routeComponent = (
-      <RouteComponent
-        component={nextItem.component}
-        prepared={nextItem.prepared}
-        routeData={nextItem.routeData}
-      >
-        {routeComponent}
-      </RouteComponent>
-    );
+    routeComponent = <RouteComponent {...nextItem}>{routeComponent}</RouteComponent>;
   }
-
   // Routes can error so wrap in an <ErrorBoundary>
   // Routes can suspend, so wrap in <Suspense>
   return <Suspense fallback={"Loading fallback..."}>{routeComponent}</Suspense>;

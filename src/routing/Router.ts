@@ -6,32 +6,40 @@ import type * as rr from "react-router";
 type History = h.BrowserHistory<h.State>;
 type Location = h.Location<h.State>;
 
-type MatchEntry = {
+export type PreloadedMatch = {
   component: any;
-  preloaded:
-    | {
-        query: PreloadedQuery<any, Record<string, unknown>>;
-      }
-    | null
-    | undefined;
+  preloaded: {
+    query: PreloadedQuery<any, Record<string, unknown>>;
+  } | null;
   routeData: rr.match<{}>;
+};
+
+export type RouteEntry = {
+  location: Location;
+  preloadedMatches: PreloadedMatch[];
 };
 
 export type Router = {
   history: History;
-  get: () => {
-    location: Location;
-    entries: any;
-  };
+  get: () => RouteEntry;
   preload: (pathname: string) => void;
-  subscribe: (observer: any) => () => void;
+  subscribe: (observer: Observer) => Unsubscribe;
+};
+
+type Observer = (routeEntry: RouteEntry) => void;
+type Unsubscribe = () => void;
+
+type RouterInternalState = {
+  currentEntry: RouteEntry;
+  nextId: number;
+  subscribers: Map<number, Observer>;
 };
 
 type RouteTreeNode = {
   path?: string | undefined;
   exact?: boolean;
   component: any;
-  preload?: (params: any) => { query: PreloadedQuery<any> } | undefined;
+  preload?: ((params: any) => { query: PreloadedQuery<any> }) | undefined;
   routes?: RouteTree | undefined;
 };
 
@@ -51,12 +59,12 @@ export function createRouter(
 
   // Find the initial match and preload it
   const initialMatches = matchRoute(routes, history.location);
-  const initialEntries = preloadMatches$effect(initialMatches);
+  const initialPreloadedMatches = preloadMatches$effect(initialMatches);
 
-  const __state = {
+  const __state: RouterInternalState = {
     currentEntry: {
       location: history.location,
-      entries: initialEntries,
+      preloadedMatches: initialPreloadedMatches,
     },
     nextId: 0,
     // maintain a set of subscribers to the active entry
@@ -71,11 +79,11 @@ export function createRouter(
       return;
     }
     const matches = matchRoute(routes, location);
-    const entries = preloadMatches$effect(matches);
+    const preloadedMatches = preloadMatches$effect(matches);
 
-    const nextEntry = {
+    const nextEntry: RouteEntry = {
       location,
-      entries,
+      preloadedMatches,
     };
     __state.currentEntry = nextEntry;
     __state.subscribers.forEach((observer) => observer(nextEntry));
@@ -122,7 +130,7 @@ function matchRoute(routes: RouteTree, location: Location) {
  */
 function preloadMatches$effect(
   matches: rrc.MatchedRoute<{}, RouteTreeNode>[]
-): MatchEntry[] {
+): PreloadedMatch[] {
   return matches.map((match) => {
     const { route, match: matchData } = match;
     const preloaded = route.preload ? route.preload(matchData.params) : null;
