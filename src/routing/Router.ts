@@ -14,23 +14,23 @@ export type PreloadedMatch = {
   routeData: rr.match<{}>;
 };
 
-export type RouteEntry = {
+export type RouteValue = {
   location: Location;
   preloadedMatches: PreloadedMatch[];
 };
 
 export type Router = {
   history: History;
-  get: () => RouteEntry;
+  getValue: () => RouteValue;
   preload: (pathname: string) => void;
   subscribe: (observer: Observer) => Unsubscribe;
 };
 
-type Observer = (routeEntry: RouteEntry) => void;
+type Observer = (routeValue: RouteValue) => void;
 type Unsubscribe = () => void;
 
 type RouterInternalState = {
-  currentEntry: RouteEntry;
+  currentValue: RouteValue;
   nextId: number;
   subscribers: Map<number, Observer>;
 };
@@ -54,7 +54,7 @@ export type RouteTree = RouteTreeNode[];
 export function createRouter(
   routes: RouteTree,
   options?: any
-): { cleanupFn: () => void; context: Router } {
+): { cleanupFn: () => void; router: Router } {
   const history = h.createBrowserHistory(options);
 
   // Find the initial match and preload it
@@ -62,7 +62,7 @@ export function createRouter(
   const initialPreloadedMatches = preloadMatches$effect(initialMatches);
 
   const __state: RouterInternalState = {
-    currentEntry: {
+    currentValue: {
       location: history.location,
       preloadedMatches: initialPreloadedMatches,
     },
@@ -75,25 +75,25 @@ export function createRouter(
   // and notify subscribers. Note that this pattern ensures that data-loading
   // occurs *outside* of - and *before* - rendering.
   const cleanupFn = history.listen(({ location }) => {
-    if (location.pathname === __state.currentEntry.location.pathname) {
+    if (location.pathname === __state.currentValue.location.pathname) {
       return;
     }
     const matches = matchRoute(routes, location);
     const preloadedMatches = preloadMatches$effect(matches);
 
-    const nextEntry: RouteEntry = {
+    const nextEntry: RouteValue = {
       location,
       preloadedMatches,
     };
-    __state.currentEntry = nextEntry;
+    __state.currentValue = nextEntry;
     __state.subscribers.forEach((observer) => observer(nextEntry));
   });
 
   // The actual object that will be passed on the RoutingContext.
-  const context = {
+  const router: Router = {
     history,
-    get() {
-      return __state.currentEntry;
+    getValue() {
+      return __state.currentValue;
     },
     preload(pathname: string) {
       // preload data for a route, without storing the result
@@ -110,7 +110,7 @@ export function createRouter(
   };
 
   // Return both the context object and a cleanup function
-  return { cleanupFn, context };
+  return { cleanupFn, router };
 }
 
 /**

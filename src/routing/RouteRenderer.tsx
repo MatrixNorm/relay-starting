@@ -1,7 +1,7 @@
 import * as React from "react";
-import { Suspense, useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import RoutingContext from "./RoutingContext";
-import type { PreloadedMatch } from "./Router";
+import type { PreloadedMatch, RouteValue } from "./Router";
 
 /**
  * The `component` property from the route entry is a Resource, which may or may not be ready.
@@ -14,7 +14,7 @@ import type { PreloadedMatch } from "./Router";
  * our ErrorBoundary/Suspense components, so we have to ensure that the suspend/error happens
  * in a child component.
  */
-function RouteComponent(props: PreloadedMatch & { children?: any }) {
+function RouteComponent(props: PreloadedMatch & { children?: JSX.Element | null }) {
   const { component, children, routeData, preloaded } = props;
   return React.createElement(component, { routeData, preloaded, children });
 }
@@ -25,24 +25,22 @@ function RouteComponent(props: PreloadedMatch & { children?: any }) {
  */
 export default function RouterRenderer() {
   const router = useContext(RoutingContext);
-  const [routeEntry, setRouteEntry] = useState(router.get());
+  const [routeValue, setRouteValue] = useState(router.getValue());
 
   useEffect(() => {
     // Check if the route has changed between the last render and commit:
-    const currentEntry = router.get();
-    if (currentEntry !== routeEntry) {
+    const currentValue = router.getValue();
+    if (currentValue !== routeValue) {
       // if there was a concurrent modification, re-render and exit
-      setRouteEntry(currentEntry);
+      setRouteValue(currentValue);
       return;
     }
-
     // If there *wasn't* a concurrent change to the route, then the UI
     // is current: subscribe for subsequent route updates
-    const dispose = router.subscribe((nextEntry: any) => {
-      console.log(nextEntry);
-      setRouteEntry(nextEntry);
+    const dispose = router.subscribe((nextValue: RouteValue) => {
+      setRouteValue(nextValue);
     });
-    return () => dispose();
+    return dispose;
   }, [router]);
 
   // The current route value is an array of matching entries - one entry per
@@ -64,10 +62,13 @@ export default function RouterRenderer() {
   // component, and iteratively construct parent components w the previous
   // value as the child of the next one:
 
-  const reversedItems = [...routeEntry.preloadedMatches].reverse();
+  return routeValue.preloadedMatches.reduceRight<JSX.Element | null>((acc, match) => {
+    return <RouteComponent {...match}>{acc}</RouteComponent>;
+  }, null);
+  /*
+  const reversedItems = [...routeValue.preloadedMatches].reverse();
   //const reversedItems: any[] = [].concat(routeEntry.preloadedMatches).reverse();
   const firstItem = reversedItems[0];
-
   // the bottom-most component is special since it will have no children
   // (though we could probably just pass null children to it)
   let routeComponent = <RouteComponent {...firstItem} />;
@@ -79,4 +80,5 @@ export default function RouterRenderer() {
   // Routes can error so wrap in an <ErrorBoundary>
   // Routes can suspend, so wrap in <Suspense>
   return <Suspense fallback={"Loading fallback..."}>{routeComponent}</Suspense>;
+  */
 }
