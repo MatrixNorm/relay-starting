@@ -3,17 +3,16 @@ import { useState } from "react";
 import graphql from "babel-plugin-relay/macro";
 import { usePreloadedQuery, useQueryLoader, PreloadedQuery } from "react-relay/hooks";
 import ComposerSummary from "./ComposerSummary";
-// types
-import {
+import type {
   ComposersBrowseViewQuery as $ComposersQuery,
   Country,
   WorkKind,
 } from "__relay__/ComposersBrowseViewQuery.graphql";
-import {
+import type {
   ComposersBrowseViewInitialQuery as $InitialQuery,
   ComposersBrowseViewInitialQueryVariables as $InitialQueryVars,
 } from "__relay__/ComposersBrowseViewInitialQuery.graphql";
-import { Denull } from "../typeUtils";
+import type { Denull } from "../typeUtils";
 
 /*
   Ideally single source of truth should be data specification
@@ -192,11 +191,11 @@ export function Inner__(props: { initialPreloadedQuery: PreloadedQuery<$InitialQ
 }
 
 export function ComposersBrowseView(props: {
-  initialPreloadedQuery: PreloadedQuery<$InitialQuery>;
+  preloadedQuery: PreloadedQuery<$InitialQuery>;
 }) {
   return (
     <React.Suspense fallback={"Loading..."}>
-      <Inner__ initialPreloadedQuery={props.initialPreloadedQuery} />
+      <Inner__ initialPreloadedQuery={props.preloadedQuery} />
     </React.Suspense>
   );
 }

@@ -24,9 +24,9 @@ export const Query = graphql`
 `;
 
 export function ComposerDetailedView(props: {
-  prepared: { queryRef: PreloadedQuery<ComposerDetailedViewQuery> };
+  preloadedQuery: PreloadedQuery<ComposerDetailedViewQuery>;
 }) {
-  const data = usePreloadedQuery(Query, props.prepared.queryRef);
+  const data = usePreloadedQuery(Query, props.preloadedQuery);
   return (
     <React.Suspense fallback={"Loading..."}>
       {data.composerById ? (

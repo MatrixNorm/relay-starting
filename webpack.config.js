@@ -32,6 +32,9 @@ module.exports = {
     watchOptions: {
       ignored: /node_modules/,
     },
+    // For client side routing
+    // https://stackoverflow.com/questions/31945763/how-to-tell-webpack-dev-server-to-serve-index-html-for-any-route
+    historyApiFallback: true,
   },
   plugins: [
     new HtmlWebpackPlugin({

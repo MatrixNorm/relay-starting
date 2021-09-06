@@ -4,7 +4,7 @@ import RoutingContext from "./RoutingContext";
 
 type Props = {
   to: string;
-  children?: JSX.Element | null;
+  children?: any;
 };
 
 /**

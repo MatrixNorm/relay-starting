@@ -16,14 +16,18 @@ import type { PreloadedMatch, RouteValue } from "./Router";
  */
 function RouteComponent(props: PreloadedMatch & { children?: JSX.Element | null }) {
   const { component, children, routeData, preloaded } = props;
-  return React.createElement(component, { routeData, preloaded, children });
+  return React.createElement(component, {
+    preloadedQuery: preloaded?.query,
+    routeData,
+    children,
+  });
 }
 
 /**
  * A component that accesses the current route entry from RoutingContext and renders
  * that entry.
  */
-export default function RouterRenderer() {
+export function RouterRenderer() {
   const router = useContext(RoutingContext);
   const [routeValue, setRouteValue] = useState(router.getValue());
 

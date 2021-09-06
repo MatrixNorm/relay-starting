@@ -38,7 +38,7 @@ type RouterInternalState = {
 type RouteTreeNode = {
   path?: string | undefined;
   exact?: boolean;
-  component: any;
+  component: React.FunctionComponent;
   preload?: ((params: any) => { query: PreloadedQuery<any> }) | undefined;
   routes?: RouteTree | undefined;
 };
@@ -118,6 +118,7 @@ export function createRouter(
  */
 function matchRoute(routes: RouteTree, location: Location) {
   const matchedRoutes = rrc.matchRoutes(routes, location.pathname);
+  console.log(matchedRoutes);
   if (!Array.isArray(matchedRoutes) || matchedRoutes.length === 0) {
     throw new Error("No route for " + location.pathname);
   }
