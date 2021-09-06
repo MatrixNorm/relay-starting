@@ -7,7 +7,7 @@ type History = h.BrowserHistory<h.State>;
 type Location = h.Location<h.State>;
 
 export type PreloadedMatch = {
-  component: any;
+  component: any; // fuck typing
   preloaded: {
     query: PreloadedQuery<any, Record<string, unknown>>;
   } | null;
@@ -38,7 +38,7 @@ type RouterInternalState = {
 type RouteTreeNode = {
   path?: string | undefined;
   exact?: boolean;
-  component: React.FunctionComponent;
+  component: any; // fuck typing
   preload?: ((params: any) => { query: PreloadedQuery<any> }) | undefined;
   routes?: RouteTree | undefined;
 };

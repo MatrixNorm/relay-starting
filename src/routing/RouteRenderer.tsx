@@ -69,20 +69,4 @@ export function RouterRenderer() {
   return routeValue.preloadedMatches.reduceRight<JSX.Element | null>((acc, match) => {
     return <RouteComponent {...match}>{acc}</RouteComponent>;
   }, null);
-  /*
-  const reversedItems = [...routeValue.preloadedMatches].reverse();
-  //const reversedItems: any[] = [].concat(routeEntry.preloadedMatches).reverse();
-  const firstItem = reversedItems[0];
-  // the bottom-most component is special since it will have no children
-  // (though we could probably just pass null children to it)
-  let routeComponent = <RouteComponent {...firstItem} />;
-
-  for (let ii = 1; ii < reversedItems.length; ii++) {
-    const nextItem = reversedItems[ii];
-    routeComponent = <RouteComponent {...nextItem}>{routeComponent}</RouteComponent>;
-  }
-  // Routes can error so wrap in an <ErrorBoundary>
-  // Routes can suspend, so wrap in <Suspense>
-  return <Suspense fallback={"Loading fallback..."}>{routeComponent}</Suspense>;
-  */
 }
