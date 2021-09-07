@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useFragment } from "react-relay";
 import graphql from "babel-plugin-relay/macro";
-
-import {
+import Link from "../routing/Link";
+import type {
   ComposerSummary_composer,
   ComposerSummary_composer$key,
 } from "__relay__/ComposerSummary_composer.graphql";
@@ -29,7 +29,7 @@ export default function ComposerSummary(props: {
   return (
     <div>
       <h4>
-        {data.name} <i>{data.country}</i>
+        <Link to={`/composer/${data.id}`}>{data.name}</Link> <i>{data.country}</i>
       </h4>
       <WorkList works={data.works} />
     </div>

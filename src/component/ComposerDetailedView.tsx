@@ -1,9 +1,8 @@
 import * as React from "react";
 import { usePreloadedQuery } from "react-relay/hooks";
 import graphql from "babel-plugin-relay/macro";
-//types
-import { PreloadedQuery } from "react-relay";
-import { ComposerDetailedViewQuery } from "__relay__/ComposerDetailedViewQuery.graphql";
+import type { PreloadedQuery } from "react-relay";
+import type { ComposerDetailedViewQuery } from "__relay__/ComposerDetailedViewQuery.graphql";
 
 type Composer = NonNullable<ComposerDetailedViewQuery["response"]["composerById"]>;
 
@@ -23,9 +22,7 @@ export const Query = graphql`
   }
 `;
 
-export function ComposerDetailedView(props: {
-  preloadedQuery: PreloadedQuery<ComposerDetailedViewQuery>;
-}) {
+function Inner__(props: { preloadedQuery: PreloadedQuery<ComposerDetailedViewQuery> }) {
   const data = usePreloadedQuery(Query, props.preloadedQuery);
   return (
     <React.Suspense fallback={"Loading..."}>
@@ -55,5 +52,15 @@ function Details({ composer }: { composer: Composer }) {
         <div>This composer is a lazy bummer</div>
       )}
     </div>
+  );
+}
+
+export function ComposerDetailedView(props: {
+  preloadedQuery: PreloadedQuery<ComposerDetailedViewQuery>;
+}) {
+  return (
+    <React.Suspense fallback={"Loading..."}>
+      <Inner__ preloadedQuery={props.preloadedQuery} />
+    </React.Suspense>
   );
 }
