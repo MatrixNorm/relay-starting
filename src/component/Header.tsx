@@ -7,6 +7,7 @@ export default function Header(props: { children?: any }) {
       <nav>
         <Link to="/">Home</Link>
         <Link to="/composers">Composers</Link>
+        <Link to="/wrong-url">404</Link>
       </nav>
       {props.children}
     </div>
