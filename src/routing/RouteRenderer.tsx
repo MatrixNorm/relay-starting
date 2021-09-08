@@ -62,11 +62,16 @@ export function RouterRenderer() {
   //   </RouteComponent>
   // </RouteComponent>
   // ```
-  // To achieve this, we reverse the list so we can start at the bottom-most
-  // component, and iteratively construct parent components w the previous
-  // value as the child of the next one:
 
   return routeValue.preloadedMatches.reduceRight<JSX.Element | null>((acc, match) => {
-    return <RouteComponent {...match}>{acc}</RouteComponent>;
+    if (match.preloaded?.query) {
+      return (
+        <React.Suspense fallback={"Loading..."}>
+          <RouteComponent {...match}>{acc}</RouteComponent>;
+        </React.Suspense>
+      );
+    } else {
+      return <RouteComponent {...match}>{acc}</RouteComponent>;
+    }
   }, null);
 }

@@ -193,9 +193,5 @@ export function Inner__(props: { initialPreloadedQuery: PreloadedQuery<$InitialQ
 export function ComposersBrowseView(props: {
   preloadedQuery: PreloadedQuery<$InitialQuery>;
 }) {
-  return (
-    <React.Suspense fallback={"Loading..."}>
-      <Inner__ initialPreloadedQuery={props.preloadedQuery} />
-    </React.Suspense>
-  );
+  return <Inner__ initialPreloadedQuery={props.preloadedQuery} />;
 }

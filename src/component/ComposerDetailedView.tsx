@@ -20,7 +20,9 @@ export const Query = graphql`
   }
 `;
 
-function Inner__(props: { preloadedQuery: PreloadedQuery<ComposerDetailedViewQuery> }) {
+export function ComposerDetailedView(props: {
+  preloadedQuery: PreloadedQuery<ComposerDetailedViewQuery>;
+}) {
   const data = usePreloadedQuery(Query, props.preloadedQuery);
 
   if (!data.composerById) {
@@ -47,15 +49,5 @@ function Inner__(props: { preloadedQuery: PreloadedQuery<ComposerDetailedViewQue
         <div>This composer is a lazy bummer</div>
       )}
     </div>
-  );
-}
-
-export function ComposerDetailedView(props: {
-  preloadedQuery: PreloadedQuery<ComposerDetailedViewQuery>;
-}) {
-  return (
-    <React.Suspense fallback={"Loading..."}>
-      <Inner__ preloadedQuery={props.preloadedQuery} />
-    </React.Suspense>
   );
 }
