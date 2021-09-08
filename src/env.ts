@@ -36,6 +36,9 @@ const mockedSchema = addMocksToSchema({
   store,
   resolvers: (store) => ({
     Query: {
+      composerById: (_, { composerId }) => {
+        return store.get("Composer", composerId);
+      },
       composers: (_, { country }) => {
         // IF gql request has variables like {} (that is
         // 'country' key is missing) then here 'country'
