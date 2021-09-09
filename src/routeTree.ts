@@ -6,10 +6,7 @@ import {
   ComposersBrowseView,
   InitialQuery as ComposersBrowseViewInitialQuery,
 } from "./component/ComposersBrowseView";
-import {
-  ComposerDetailedView,
-  Query as ComposerDetailedViewQuery,
-} from "./component/ComposerDetailedView";
+import { ComposerView, Query as ComposerViewQuery } from "./component/ComposerView";
 
 import type { IEnvironment } from "relay-runtime";
 import type { RouteTree } from "./routing/Router";
@@ -37,14 +34,42 @@ export const getRouteTree = (relayEnv: IEnvironment): RouteTree => [
       },
       {
         path: "/composer/:id",
-        component: ComposerDetailedView,
+        component: ComposerView,
         preload: (params: { id: string }) => {
+          console.log("ComposerView");
           return {
-            query: loadQuery(relayEnv, ComposerDetailedViewQuery, {
+            query: loadQuery(relayEnv, ComposerViewQuery, {
               composerId: params.id,
             }),
           };
         },
+        routes: [
+          {
+            path: "/composer/:id",
+            exact: true,
+            component: ComposerViewDefault,
+            preload: (params: { id: any }) => {
+              console.log("ComposerViewDefault");
+              return {
+                query: loadQuery(relayEnv, ComposerViewDefaultQuery, {
+                  composerId: params.id,
+                }),
+              };
+            },
+          },
+          {
+            path: "/composer/:id/bio",
+            component: ComposerViewBio,
+            preload: (params: { id: any }) => {
+              console.log("ComposerViewBio");
+              return {
+                query: loadQuery(relayEnv, ComposerViewBioQuery, {
+                  composerId: params.id,
+                }),
+              };
+            },
+          },
+        ],
       },
       {
         path: "*",

@@ -33,6 +33,7 @@ const Composer = new GraphQLObjectType({
     id: { type: new GraphQLNonNull(GraphQLID) },
     name: { type: new GraphQLNonNull(GraphQLString) },
     country: { type: Country },
+    bio: { type: GraphQLString },
     works: {
       type: new GraphQLList(new GraphQLNonNull(Work)),
       args: { kind: { type: WorkKind } },
