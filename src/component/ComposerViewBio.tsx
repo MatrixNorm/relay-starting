@@ -1,10 +1,8 @@
 import * as React from "react";
 import { usePreloadedQuery } from "react-relay/hooks";
 import graphql from "babel-plugin-relay/macro";
-import Link from "../routing/Link";
-//types
-import { PreloadedQuery } from "react-relay";
-import { ComposerViewBioQuery } from "__relay__/ComposerViewBioQuery.graphql";
+import type { PreloadedQuery } from "react-relay";
+import type { ComposerViewBioQuery } from "__relay__/ComposerViewBioQuery.graphql";
 
 export const Query = graphql`
   query ComposerViewBioQuery($composerId: ID!) {
@@ -19,9 +17,5 @@ export function ComposerViewBio(props: {
 }) {
   const data = usePreloadedQuery(Query, props.preloadedQuery);
   const composer = data.composerById;
-  return (
-    <React.Suspense fallback={"Loading..."}>
-      {composer ? <div>{composer.bio}</div> : <div>Not found</div>}
-    </React.Suspense>
-  );
+  return composer ? <div>{composer.bio}</div> : <div>Not found</div>;
 }

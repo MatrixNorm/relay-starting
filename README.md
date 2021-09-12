@@ -13,3 +13,9 @@ XXX watchman
 
 ###debug browser app in Vscode
 https://code.visualstudio.com/docs/nodejs/browser-debugging
+
+###run specific test
+
+```bash
+npx jest -i src/__tests__/RequestSerializer-test.ts -t t_2
+```

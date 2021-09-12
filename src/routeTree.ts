@@ -7,6 +7,14 @@ import {
   InitialQuery as ComposersBrowseViewInitialQuery,
 } from "./component/ComposersBrowseView";
 import { ComposerView, Query as ComposerViewQuery } from "./component/ComposerView";
+import {
+  ComposerViewDefault,
+  Query as ComposerViewDefaultQuery,
+} from "./component/ComposerViewDefault";
+import {
+  ComposerViewBio,
+  Query as ComposerViewBioQuery,
+} from "./component/ComposerViewBio";
 
 import type { IEnvironment } from "relay-runtime";
 import type { RouteTree } from "./routing/Router";

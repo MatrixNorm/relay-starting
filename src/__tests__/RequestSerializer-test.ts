@@ -1,5 +1,4 @@
 import { RequestSerializer } from "../env";
-import * as tu from "../testUtils";
 
 describe("RequestSerializer", () => {
   test("t_1 first promise is unchanged", async () => {
@@ -9,19 +8,27 @@ describe("RequestSerializer", () => {
     expect(resp === p).toBe(true);
   });
 
-  test("t_2 second promise always resolves after first", async () => {
+  test("t_2 second promise starts execution after first promise is done", async () => {
     const rs = new RequestSerializer();
+
     let resolveP1: any;
-    const p1 = new Promise((resolve) => {
-      resolveP1 = resolve;
-    });
-    const p2 = Promise.resolve();
+    const p1 = () =>
+      new Promise((resolve) => {
+        resolveP1 = resolve;
+      });
+
+    let mockFn = jest.fn();
+    const p2 = () =>
+      new Promise((resolve) => {
+        mockFn();
+        resolve(0);
+      });
 
     rs.add(p1);
-    const resp2 = rs.add(p2);
-    expect(tu.isPromisePending(resp2)).toBe(true);
+    rs.add(p2);
+    expect(mockFn.mock.calls.length).toBe(0);
+
     resolveP1();
-    await tu.eventLoopNextTick();
-    expect(tu.isPromiseResolved(resp2)).toBe(true);
+    Promise.resolve().then((_) => expect(mockFn.mock.calls.length).toBe(1));
   });
 });

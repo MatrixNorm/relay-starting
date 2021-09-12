@@ -131,16 +131,13 @@ export class RequestSerializer {
     this.latestPromise = null;
   }
 
-  add(response: Promise<any> | (() => Promise<any>)) {
-    if (typeof response === "function") {
-      response = response();
-    }
+  add(responseFn: () => Promise<any>) {
     if (this.latestPromise === null) {
-      this.latestPromise = response;
+      this.latestPromise = responseFn();
     } else {
       const serializedResponseFn = async () => {
         await this.latestPromise;
-        return await response;
+        return await responseFn();
       };
       this.latestPromise = serializedResponseFn();
     }

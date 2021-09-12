@@ -1,6 +1,6 @@
 describe("****", () => {
   test("t_1", () => {
-    const p1 = Promise.resolve();
+    const p1 = Promise.resolve(1);
     console.log(p1);
     const x = (async () => {
       console.log("A");

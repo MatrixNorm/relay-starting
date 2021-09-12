@@ -9,6 +9,7 @@ type Composer implements Node {
   id: ID!
   name: String!
   country: Country
+  bio: String
   works(kind: WorkKind): [Work!]
 }
 

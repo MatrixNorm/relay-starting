@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { RelayEnvironmentProvider } from "react-relay/hooks";
-import { createMockedRelayEnvironment2 } from "./env";
+import { createMockedRelayEnvironment2 as createRelayEnv } from "./env";
 import { createRouter } from "./routing/Router";
 import { RouterRenderer } from "./routing/RouteRenderer";
 import RoutingContext from "./routing/RoutingContext";
@@ -18,7 +18,7 @@ function App({ env }: { env: IEnvironment }) {
   );
 }
 
-const relayEnv = createMockedRelayEnvironment2({ timeout: 1000 });
+const relayEnv = createRelayEnv({ timeout: 2000 });
 const { router } = createRouter(getRouteTree(relayEnv));
 
 ReactDOM.render(<App env={relayEnv} />, document.getElementById("app"));

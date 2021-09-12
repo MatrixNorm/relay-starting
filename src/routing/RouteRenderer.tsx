@@ -64,14 +64,11 @@ export function RouterRenderer() {
   // ```
 
   return routeValue.preloadedMatches.reduceRight<JSX.Element | null>((acc, match) => {
-    if (match.preloaded?.query) {
-      return (
-        <React.Suspense fallback={"Loading..."}>
-          <RouteComponent {...match}>{acc}</RouteComponent>;
-        </React.Suspense>
-      );
-    } else {
-      return <RouteComponent {...match}>{acc}</RouteComponent>;
-    }
+    const comp = <RouteComponent {...match}>{acc}</RouteComponent>;
+    return match.preloaded?.query ? (
+      <React.Suspense fallback={"Loading..."}>{comp}</React.Suspense>
+    ) : (
+      comp
+    );
   }, null);
 }
