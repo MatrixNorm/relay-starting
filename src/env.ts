@@ -37,6 +37,9 @@ const mockedSchema = addMocksToSchema({
   resolvers: (store) => ({
     Query: {
       composerById: (_, { composerId }) => {
+        if (composerId === "__404__") {
+          return null;
+        }
         return store.get("Composer", composerId);
       },
       composers: (_, { country }) => {
@@ -87,43 +90,6 @@ const mockedSchema = addMocksToSchema({
  * Each response waits until previous response is done.
  * Every response takes equal `timeout` to simulate network delay.
  */
-export const createMockedRelayEnvironment = (
-  { timeout }: { timeout: number } = { timeout: 500 }
-) => {
-  // we are starting with resolved promise
-  let __latestResponsePromise: Promise<any> = Promise.resolve();
-
-  const network = rr.Network.create(
-    async (request: rr.RequestParameters, variables: rr.Variables) => {
-      // closure captures value of __latestResponsePromise
-      async function createNextResponsePromise() {
-        await __latestResponsePromise;
-        await ut.sleepPromise(timeout);
-        return gql.graphqlSync({
-          schema: mockedSchema,
-          source: request.text || "",
-          variableValues: variables,
-        });
-      }
-
-      __latestResponsePromise = createNextResponsePromise();
-      // Typescript type for GraphQLResponse is wrong because
-      // null value it does not permit.
-      return __latestResponsePromise as Promise<rr.GraphQLResponse>;
-    }
-  );
-  const store = new rr.Store(new rr.RecordSource());
-  const environment = new rr.Environment({ network, store });
-  // @ts-ignore
-  window.__relayStore = environment.getStore()._recordSource._records;
-  return environment;
-};
-
-/**
- * XXX
- *
- */
-
 export class RequestSerializer {
   private latestPromise: Promise<any> | null;
 
@@ -145,7 +111,7 @@ export class RequestSerializer {
   }
 }
 
-export const createMockedRelayEnvironment2 = (
+export const createMockedRelayEnvironment = (
   { timeout }: { timeout: number } = { timeout: 500 }
 ) => {
   const requestSerializer = new RequestSerializer();
@@ -156,11 +122,12 @@ export const createMockedRelayEnvironment2 = (
   ): Promise<rr.GraphQLResponse> => {
     return requestSerializer.add(async function () {
       await ut.sleepPromise(timeout);
-      return gql.graphqlSync({
+      let data = gql.graphqlSync({
         schema: mockedSchema,
         source: request.text || "",
         variableValues: variables,
       });
+      return data;
     }) as Promise<rr.GraphQLResponse>;
   };
 

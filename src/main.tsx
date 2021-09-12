@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { RelayEnvironmentProvider } from "react-relay/hooks";
-import { createMockedRelayEnvironment2 as createRelayEnv } from "./env";
+import { createMockedRelayEnvironment as createRelayEnv } from "./env";
 import { createRouter } from "./routing/Router";
 import { RouterRenderer } from "./routing/RouteRenderer";
 import RoutingContext from "./routing/RoutingContext";

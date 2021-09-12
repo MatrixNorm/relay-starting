@@ -1,5 +1,6 @@
 import { loadQuery } from "react-relay/hooks";
 import NotFound404 from "./component/NotFound404";
+import ThrowComponent from "./component/Throw";
 import Header from "./component/Header";
 import HomeView from "./component/HomeView";
 import {
@@ -78,6 +79,10 @@ export const getRouteTree = (relayEnv: IEnvironment): RouteTree => [
             },
           },
         ],
+      },
+      {
+        path: "/throw",
+        component: ThrowComponent,
       },
       {
         path: "*",

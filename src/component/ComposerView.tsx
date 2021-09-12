@@ -35,6 +35,6 @@ export function ComposerView(props: {
       </div>
     );
   } else {
-    <div>Not found</div>;
+    return <div>Not found</div>;
   }
 }
