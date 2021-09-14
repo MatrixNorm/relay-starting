@@ -13,7 +13,7 @@ export default function Header(props: { children?: any }) {
         <Link to="/wrong-url">404</Link>
         <Link to="/throw">Broke it</Link>
       </nav>
-      <CatchError location={router.getValue().location}>{props.children}</CatchError>
+      <CatchError key={router.getValue().location.pathname}>{props.children}</CatchError>
     </div>
   );
 }
