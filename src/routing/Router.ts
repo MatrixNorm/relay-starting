@@ -4,7 +4,7 @@ import type { PreloadedQuery } from "react-relay/hooks";
 import type * as rr from "react-router";
 
 type History = h.BrowserHistory<h.State>;
-type Location = h.Location<h.State>;
+export type Location = h.Location<h.State>;
 
 export type PreloadedMatch = {
   component: any; // fuck typing
